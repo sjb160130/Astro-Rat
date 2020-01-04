@@ -19,7 +19,7 @@ public class PlayerManager : Singleton<PlayerManager>
 		}
 	}
 
-	const int MaxPlayers = 8;
+	public const int MaxPlayers = 8;
 
 	Dictionary<int, PlayerData> _players = new Dictionary<int, PlayerData>();
 
@@ -33,6 +33,15 @@ public class PlayerManager : Singleton<PlayerManager>
 				return false;
 		}
 		return true;
+	}
+
+	public bool IsPlaying(int id) {
+		return _players.ContainsKey(id);
+	}
+
+	public void Reset()
+	{
+		_players = new Dictionary<int, PlayerData>();
 	}
 
 	private void Update()
