@@ -65,6 +65,22 @@ public static class Extensions
 		return list[Random.Range(0, list.Length)];
 	}
 
+
+	private static System.Random random = new System.Random();
+
+	public static T[] Shuffle<T>(this T[] array)
+	{
+		int n = array.Length;
+		for (int i = 0; i < n; i++)
+		{
+			int r = i + random.Next(n - i);
+			T t = array[r];
+			array[r] = array[i];
+			array[i] = t;
+		}
+		return array;
+	}
+
 	public static void ZeroAll(this Transform t)
 	{
 		t.localPosition = Vector3.zero;
