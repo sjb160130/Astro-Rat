@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class RatCalcuator : MonoBehaviour
 {
-    public Vector2 planetPoint;
+    public Vector2 planetPoint = new Vector2(0,0);
 
     public Vector2 me;
 
@@ -17,10 +17,10 @@ public class RatCalcuator : MonoBehaviour
     {
         me = transform.position;
 
-        var holder = me - planetPoint;
+        var holder = planetPoint + me;
         Debug.Log(holder);
 
-        calcDown = RoundVector(holder);
+        calcDown = RoundVector(holder).normalized;
         calcUp = calcDown * -1;
         calcLeft = RoundVector(Vector2.Perpendicular(holder));
         calcRight = calcLeft * -1;
@@ -52,7 +52,7 @@ public class RatCalcuator : MonoBehaviour
     {
         float x = (float) Math.Round(v.x, 2);
         float y = (float) Math.Round(v.y, 2);
-        return new Vector2(x, y);
+        return new Vector2(x, y).normalized;
     }
 }
 

@@ -15,6 +15,12 @@ public class RatController : MonoBehaviour
 	}
 
 
+    public Transform TopLeft;
+    public Transform TopRight;
+    public Transform BottomLeft;
+    public Transform BottomRight;
+
+
     public RatCalcuator calc;
 
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
@@ -147,17 +153,6 @@ public class RatController : MonoBehaviour
 
 
 
-
-
-	[System.Diagnostics.Conditional( "DEBUG_CC2D_RAYS" )]
-	void DrawRay( Vector3 start, Vector3 dir, Color color )
-	{
-		Debug.DrawRay( start, dir, color );
-	}
-
-
-
-
 	/// <summary>
 	/// attempts to move the character to position + deltaMovement. Any colliders in the way will cause the movement to
 	/// stop when run into.
@@ -239,30 +234,32 @@ public class RatController : MonoBehaviour
 		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * _skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( totalHorizontalRays - 1 );
 
-		// vertical
-		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * _skinWidth );
-		_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
-	}
-
-	
+        //// vertical
+        //var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * _skinWidth );
+        //_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
 
 
-	
-	/// <summary>
-	/// resets the raycastOrigins to the current extents of the box collider inset by the skinWidth. It is inset
-	/// to avoid casting a ray from a position directly touching another collider which results in wonky normal data.
-	/// </summary>
-	/// <param name="futurePosition">Future position.</param>
-	/// <param name="deltaMovement">Delta movement.</param>
-	void primeRaycastOrigins()
+        //// vertical
+        var colliderUseableWidth = Mathf.Abs(TopLeft.position.y - BottomLeft.position.y) * Mathf.Abs( transform.localScale.x ) - ( 2f * _skinWidth );
+        _horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
+
+    }
+
+
+
+
+
+    /// <summary>
+    /// resets the raycastOrigins to the current extents of the box collider inset by the skinWidth. It is inset
+    /// to avoid casting a ray from a position directly touching another collider which results in wonky normal data.
+    /// </summary>
+    /// <param name="futurePosition">Future position.</param>
+    /// <param name="deltaMovement">Delta movement.</param>
+    void primeRaycastOrigins()
 	{
-		// our raycasts need to be fired from the bounds inset by the skinWidth
-		var modifiedBounds = boxCollider.bounds;
-		modifiedBounds.Expand( -2f * _skinWidth );
-
-		_raycastOrigins.topLeft = new Vector2( modifiedBounds.min.x, modifiedBounds.max.y );
-		_raycastOrigins.bottomRight = new Vector2( modifiedBounds.max.x, modifiedBounds.min.y );
-		_raycastOrigins.bottomLeft = modifiedBounds.min;
+        _raycastOrigins.topLeft = TopLeft.position;
+		_raycastOrigins.bottomRight = BottomRight.position;
+        _raycastOrigins.bottomLeft = BottomLeft.position;
 	}
 
 
@@ -283,7 +280,7 @@ public class RatController : MonoBehaviour
 		{
 			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
 
-			DrawRay( ray, rayDirection * rayDistance * 4, Color.red );
+			DrawRay( ray, (rayDirection * rayDistance) * 10, Color.red );
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
@@ -396,27 +393,29 @@ public class RatController : MonoBehaviour
 
 	void moveVertically( ref Vector3 deltaMovement )
 	{
+
 		var isGoingUp = deltaMovement.y > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.y ) + _skinWidth;
 		var rayDirection = isGoingUp ? calc.GetUp() : calc.GetDown();
+      
 		var initialRayOrigin = isGoingUp ? _raycastOrigins.topLeft : _raycastOrigins.bottomLeft;
-
-		// apply our horizontal deltaMovement here so that we do our raycast from the actual position we would be in if we had moved
-		initialRayOrigin.x += deltaMovement.x;
+  
+        // apply our horizontal deltaMovement here so that we do our raycast from the actual position we would be in if we had moved
+        initialRayOrigin.x += deltaMovement.x;
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = platformMask;
 
 		for( var i = 0; i < totalVerticalRays; i++ )
 		{
-			var ray = new Vector2( initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y );
+			var rayOrigin = new Vector2( initialRayOrigin.x + (i * _horizontalDistanceBetweenRays), initialRayOrigin.y );
 
-			DrawRay( ray, rayDirection * rayDistance * 4, Color.red );
-			_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, mask );
+            DrawRay( rayOrigin, (rayDirection * rayDistance) * 10, Color.green );
+			_raycastHit = Physics2D.Raycast( rayOrigin, rayDirection, rayDistance, mask );
 			if( _raycastHit )
 			{
 				// set our new deltaMovement and recalculate the rayDistance taking it into account
-				deltaMovement.y = _raycastHit.point.y - ray.y;
+				deltaMovement.y = _raycastHit.point.y - rayOrigin.y;
 				rayDistance = Mathf.Abs( deltaMovement.y );
 
 				// remember to remove the skinWidth from our deltaMovement
@@ -508,6 +507,15 @@ public class RatController : MonoBehaviour
     {
         if (onTriggerExitEvent != null)
             onTriggerExitEvent(col);
+    }
+
+
+
+
+    [System.Diagnostics.Conditional("DEBUG_CC2D_RAYS")]
+    void DrawRay(Vector3 start, Vector3 dir, Color color)
+    {
+        Debug.DrawRay(start, dir, color);
     }
 
 
