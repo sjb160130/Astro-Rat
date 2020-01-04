@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Prime31;
 
 
-public class SummerDemoScene : MonoBehaviour
+public class RatBrain : MonoBehaviour
 {
 	public float gravity = -25f;
 	public float runSpeed = 8f;
@@ -14,7 +13,7 @@ public class SummerDemoScene : MonoBehaviour
 	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
 
-	private SummerCharacterController2D _controller;
+	private RatController _controller;
 	private Animator _animator;
 	private RaycastHit2D _lastControllerColliderHit;
 	private Vector3 _velocity;
@@ -23,7 +22,7 @@ public class SummerDemoScene : MonoBehaviour
 	void Awake()
 	{
 		_animator = GetComponent<Animator>();
-		_controller = GetComponent<SummerCharacterController2D>();
+		_controller = GetComponent<RatController>();
 
 		// listen to some events for illustration purposes
 		_controller.onControllerCollidedEvent += onControllerCollider;

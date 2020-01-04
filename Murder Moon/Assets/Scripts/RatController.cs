@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 
 
-namespace Prime31 {
-
 [RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
-public class SummerCharacterController2D : MonoBehaviour
+public class RatController : MonoBehaviour
 {
 
 	struct CharacterRaycastOrigins
@@ -556,4 +554,4 @@ public class SummerCharacterController2D : MonoBehaviour
 		}
 	}
 
-}}
+}
