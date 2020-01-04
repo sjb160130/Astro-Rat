@@ -9,7 +9,6 @@ namespace Prime31 {
 [RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
 public class SummerCharacterController2D : MonoBehaviour
 {
-	#region internal types
 
 	struct CharacterRaycastOrigins
 	{
@@ -50,21 +49,13 @@ public class SummerCharacterController2D : MonoBehaviour
 		}
 	}
 
-	#endregion
-
-
-	#region events, properties and fields
-
+	
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
 	public event Action<Collider2D> onTriggerEnterEvent;
 	public event Action<Collider2D> onTriggerStayEvent;
 	public event Action<Collider2D> onTriggerExitEvent;
 
-
-	/// <summary>
-	/// when true, one way platforms will be ignored when moving vertically for a single frame
-	/// </summary>
-	public bool ignoreOneWayPlatformsThisFrame;
+	
 
 	[SerializeField]
 	[Range( 0.001f, 0.3f )]
@@ -149,7 +140,7 @@ public class SummerCharacterController2D : MonoBehaviour
 
 	const float kSkinWidthFloatFudgeFactor = 0.001f;
 
-	#endregion
+	
 
 
 	/// <summary>
@@ -181,10 +172,7 @@ public class SummerCharacterController2D : MonoBehaviour
 
 	void Awake()
 	{
-		// add our one-way platforms to our normal platform mask so that we can land on them from above
-		platformMask |= oneWayPlatformMask;
 
-		// cache some components
 		transform = GetComponent<Transform>();
 		boxCollider = GetComponent<BoxCollider2D>();
 		rigidBody2D = GetComponent<Rigidbody2D>();
@@ -232,7 +220,7 @@ public class SummerCharacterController2D : MonoBehaviour
 	}
 
 
-	#region Public
+
 
 	/// <summary>
 	/// attempts to move the character to position + deltaMovement. Any colliders in the way will cause the movement to
@@ -288,7 +276,7 @@ public class SummerCharacterController2D : MonoBehaviour
 				onControllerCollidedEvent( _raycastHitsThisFrame[i] );
 		}
 
-		ignoreOneWayPlatformsThisFrame = false;
+	
 	}
 
 
@@ -320,11 +308,10 @@ public class SummerCharacterController2D : MonoBehaviour
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
 	}
 
-	#endregion
+	
 
 
-	#region Movement Methods
-
+	
 	/// <summary>
 	/// resets the raycastOrigins to the current extents of the box collider inset by the skinWidth. It is inset
 	/// to avoid casting a ray from a position directly touching another collider which results in wonky normal data.
@@ -486,7 +473,7 @@ public class SummerCharacterController2D : MonoBehaviour
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = platformMask;
-		if( ( isGoingUp && !collisionState.wasGroundedLastFrame ) || ignoreOneWayPlatformsThisFrame )
+		if( ( isGoingUp && !collisionState.wasGroundedLastFrame ))
 			mask &= ~oneWayPlatformMask;
 
 		for( var i = 0; i < totalVerticalRays; i++ )
@@ -568,7 +555,5 @@ public class SummerCharacterController2D : MonoBehaviour
 			}
 		}
 	}
-
-	#endregion
 
 }}
