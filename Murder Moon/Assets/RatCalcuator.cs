@@ -13,23 +13,40 @@ public class RatCalcuator : MonoBehaviour
     public Vector2 calcDown;
     public Vector2 calcUp;
 
-    public void Awake()
-    {
-        me = transform.position;
-    }
-
     public void Update()
     {
         me = transform.position;
 
-        var holder = planetPoint - me;
+        var holder = me - planetPoint;
         Debug.Log(holder);
 
         calcDown = RoundVector(holder);
+        calcUp = calcDown * -1;
         calcLeft = RoundVector(Vector2.Perpendicular(holder));
         calcRight = calcLeft * -1;
     }
 
+
+    public Vector2 GetLeft()
+    {
+        return calcLeft;
+    }
+
+    public Vector2 GetRight()
+    {
+        return calcRight;
+    }
+
+
+    public Vector2 GetDown()
+    {
+        return calcDown;
+    }
+
+    public Vector2 GetUp()
+    {
+        return calcUp;
+    }
 
     private Vector2 RoundVector(Vector2 v)
     {

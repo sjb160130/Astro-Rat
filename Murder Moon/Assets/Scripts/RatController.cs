@@ -14,6 +14,9 @@ public class RatController : MonoBehaviour
 		public Vector3 bottomLeft;
 	}
 
+
+    public RatCalcuator calc;
+
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
 	public event Action<Collider2D> onTriggerEnterEvent;
 	public event Action<Collider2D> onTriggerStayEvent;
@@ -122,11 +125,10 @@ public class RatController : MonoBehaviour
 	bool _isGoingUpSlope = false;
 
 
-	#region Monobehaviour
 
 	void Awake()
 	{
-
+        calc = GetComponent<RatCalcuator>();
 		transform = GetComponent<Transform>();
 		boxCollider = GetComponent<BoxCollider2D>();
 		rigidBody2D = GetComponent<Rigidbody2D>();
@@ -144,27 +146,7 @@ public class RatController : MonoBehaviour
 	}
 
 
-	public void OnTriggerEnter2D( Collider2D col )
-	{
-		if( onTriggerEnterEvent != null )
-			onTriggerEnterEvent( col );
-	}
 
-
-	public void OnTriggerStay2D( Collider2D col )
-	{
-		if( onTriggerStayEvent != null )
-			onTriggerStayEvent( col );
-	}
-
-
-	public void OnTriggerExit2D( Collider2D col )
-	{
-		if( onTriggerExitEvent != null )
-			onTriggerExitEvent( col );
-	}
-
-	#endregion
 
 
 	[System.Diagnostics.Conditional( "DEBUG_CC2D_RAYS" )]
@@ -294,14 +276,14 @@ public class RatController : MonoBehaviour
 	{
 		var isGoingRight = deltaMovement.x > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.x ) + _skinWidth;
-		var rayDirection = isGoingRight ? Vector2.right : -Vector2.right;
+		var rayDirection = isGoingRight ? calc.GetRight() : calc.GetLeft();
 		var initialRayOrigin = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
 
 		for( var i = 0; i < totalHorizontalRays; i++ )
 		{
 			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
 
-			DrawRay( ray, rayDirection * rayDistance, Color.red );
+			DrawRay( ray, rayDirection * rayDistance * 4, Color.red );
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
@@ -416,7 +398,7 @@ public class RatController : MonoBehaviour
 	{
 		var isGoingUp = deltaMovement.y > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.y ) + _skinWidth;
-		var rayDirection = isGoingUp ? Vector2.up : -Vector2.up;
+		var rayDirection = isGoingUp ? calc.GetUp() : calc.GetDown();
 		var initialRayOrigin = isGoingUp ? _raycastOrigins.topLeft : _raycastOrigins.bottomLeft;
 
 		// apply our horizontal deltaMovement here so that we do our raycast from the actual position we would be in if we had moved
@@ -429,7 +411,7 @@ public class RatController : MonoBehaviour
 		{
 			var ray = new Vector2( initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y );
 
-			DrawRay( ray, rayDirection * rayDistance, Color.red );
+			DrawRay( ray, rayDirection * rayDistance * 4, Color.red );
 			_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, mask );
 			if( _raycastHit )
 			{
@@ -504,5 +486,29 @@ public class RatController : MonoBehaviour
 			}
 		}
 	}
+
+
+
+
+    public void OnTriggerEnter2D(Collider2D col)
+    {
+        if (onTriggerEnterEvent != null)
+            onTriggerEnterEvent(col);
+    }
+
+
+    public void OnTriggerStay2D(Collider2D col)
+    {
+        if (onTriggerStayEvent != null)
+            onTriggerStayEvent(col);
+    }
+
+
+    public void OnTriggerExit2D(Collider2D col)
+    {
+        if (onTriggerExitEvent != null)
+            onTriggerExitEvent(col);
+    }
+
 
 }
