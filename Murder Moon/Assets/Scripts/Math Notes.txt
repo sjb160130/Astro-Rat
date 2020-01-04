@@ -1,0 +1,5 @@
+Moon Mass = 7.34767309 × 10^22 kg
+Moon Radius = 1,079.4 mi
+
+Earth Mass = 5.972×10^24 kg
+Earth Radius = 3,958.8 mi
