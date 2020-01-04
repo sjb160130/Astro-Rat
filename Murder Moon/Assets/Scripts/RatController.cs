@@ -7,7 +7,6 @@ using System.Collections.Generic;
 [RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
 public class RatController : MonoBehaviour
 {
-
 	struct CharacterRaycastOrigins
 	{
 		public Vector3 topLeft;
@@ -15,39 +14,6 @@ public class RatController : MonoBehaviour
 		public Vector3 bottomLeft;
 	}
 
-	public class CharacterCollisionState2D
-	{
-		public bool right;
-		public bool left;
-		public bool above;
-		public bool below;
-		public bool becameGroundedThisFrame;
-		public bool wasGroundedLastFrame;
-		public bool movingDownSlope;
-		public float slopeAngle;
-
-
-		public bool hasCollision()
-		{
-			return below || right || left || above;
-		}
-
-
-		public void reset()
-		{
-			right = left = above = below = becameGroundedThisFrame = movingDownSlope = false;
-			slopeAngle = 0f;
-		}
-
-
-		public override string ToString()
-		{
-			return string.Format( "[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, wasGroundedLastFrame: {6}, becameGroundedThisFrame: {7}",
-			                     right, left, above, below, movingDownSlope, slopeAngle, wasGroundedLastFrame, becameGroundedThisFrame );
-		}
-	}
-
-	
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
 	public event Action<Collider2D> onTriggerEnterEvent;
 	public event Action<Collider2D> onTriggerStayEvent;
@@ -83,13 +49,6 @@ public class RatController : MonoBehaviour
 	/// mask with all layers that trigger events should fire when intersected
 	/// </summary>
 	public LayerMask triggerMask = 0;
-
-	/// <summary>
-	/// mask with all layers that should act as one-way platforms. Note that one-way platforms should always be EdgeCollider2Ds. This is because it does not support being
-	/// updated anytime outside of the inspector for now.
-	/// </summary>
-	[SerializeField]
-	LayerMask oneWayPlatformMask = 0;
 
 	/// <summary>
 	/// the max slope angle that the CC2D can climb
@@ -131,15 +90,12 @@ public class RatController : MonoBehaviour
 	public Rigidbody2D rigidBody2D;
 
 	[HideInInspector][NonSerialized]
-	public CharacterCollisionState2D collisionState = new CharacterCollisionState2D();
+	public RatCollisionState collisionState = new RatCollisionState();
 	[HideInInspector][NonSerialized]
 	public Vector3 velocity;
 	public bool isGrounded { get { return collisionState.below; } }
 
 	const float kSkinWidthFloatFudgeFactor = 0.001f;
-
-	
-
 
 	/// <summary>
 	/// holder for our raycast origin corners (TR, TL, BR, BL)
@@ -241,7 +197,7 @@ public class RatController : MonoBehaviour
 		// first, we check for a slope below us before moving
 		// only check slopes if we are going down and grounded
 		if( deltaMovement.y < 0f && collisionState.wasGroundedLastFrame )
-			handleVerticalSlope( ref deltaMovement );
+			//handleVerticalSlope( ref deltaMovement );
 
 		// now we check movement in the horizontal dir
 		if( deltaMovement.x != 0f )
@@ -351,8 +307,6 @@ public class RatController : MonoBehaviour
 			// walk up sloped oneWayPlatforms
 			if( i == 0 && collisionState.wasGroundedLastFrame )
 				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask );
-			else
-				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask & ~oneWayPlatformMask );
 
 			if( _raycastHit )
 			{
@@ -429,11 +383,10 @@ public class RatController : MonoBehaviour
 				// safety check. we fire a ray in the direction of movement just in case the diagonal we calculated above ends up
 				// going through a wall. if the ray hits, we back off the horizontal movement to stay in bounds.
 				var ray = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
-				RaycastHit2D raycastHit;
+
+				RaycastHit2D raycastHit = new RaycastHit2D();
 				if( collisionState.wasGroundedLastFrame )
 					raycastHit = Physics2D.Raycast( ray, deltaMovement.normalized, deltaMovement.magnitude, platformMask );
-				else
-					raycastHit = Physics2D.Raycast( ray, deltaMovement.normalized, deltaMovement.magnitude, platformMask & ~oneWayPlatformMask );
 
 				if( raycastHit )
 				{
@@ -471,8 +424,6 @@ public class RatController : MonoBehaviour
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = platformMask;
-		if( ( isGoingUp && !collisionState.wasGroundedLastFrame ))
-			mask &= ~oneWayPlatformMask;
 
 		for( var i = 0; i < totalVerticalRays; i++ )
 		{
