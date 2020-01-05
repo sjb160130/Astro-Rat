@@ -10,6 +10,7 @@ public class RatController : MonoBehaviour
 	struct CharacterRaycastOrigins
 	{
 		public Vector3 topLeft;
+		public Vector3 topRight;
 		public Vector3 bottomRight;
 		public Vector3 bottomLeft;
 	}
@@ -171,22 +172,30 @@ public class RatController : MonoBehaviour
 
 		primeRaycastOrigins();
 
+		Vector3 move = Vector3.zero;
 
 		// now we check movement in the horizontal dir
 		if( deltaMovement.x != 0f )
-			moveHorizontally( ref deltaMovement );
+			move = moveHorizontally( deltaMovement );
+
+		//rotate
+//TODO: recdalculate down
+		Vector3 right = calc.GetRight();
+		float angle = Vector2.Angle(Vector2.right, right);
+		this.transform.rotation = Quaternion.Euler(0f, 0f, angle + 180f);
+		recalculateDistanceBetweenRays();
 
 		// next, check movement in the vertical dir
-		if( deltaMovement.y != 0f )
-			moveVertically( ref deltaMovement );
+		if ( deltaMovement.y != 0f )
+			move += moveVertically( deltaMovement );
 
 		// move then update our state
-		deltaMovement.z = 0;
-		transform.Translate( deltaMovement, Space.World );
+		move.z = 0;
+		transform.Translate( move, Space.World );
 
 		// only calculate velocity if we have a non-zero deltaTime
 		if( Time.deltaTime > 0f )
-			velocity = deltaMovement / Time.deltaTime;
+			velocity = move / Time.deltaTime;
 
 		// set our becameGrounded state based on the previous and current collision state
 		if( !collisionState.wasGroundedLastFrame && collisionState.below )
@@ -209,8 +218,8 @@ public class RatController : MonoBehaviour
 	/// </summary>
 	public void recalculateDistanceBetweenRays()
 	{
-		// figure out the distance between our rays in both directions
-		// horizontal
+		//// figure out the distance between our rays in both directions
+		//// horizontal
 		//var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * _skinWidth );
 		//_verticalDistanceBetweenRays = colliderUseableHeight / ( totalHorizontalRays - 1 );
 
@@ -219,12 +228,10 @@ public class RatController : MonoBehaviour
         //_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
 
 
-        // horizontal
-        var colliderUseableHeight = Mathf.Abs(TopLeft.position.y - TopRight.position.y);
+        var colliderUseableHeight = Vector3.Distance(TopLeft.position, BottomLeft.position);
         _verticalDistanceBetweenRays = colliderUseableHeight / (totalHorizontalRays - 1);
 
-        //// vertical
-        var colliderUseableWidth = Mathf.Abs(TopLeft.position.y - BottomLeft.position.y);
+        var colliderUseableWidth = Vector3.Distance(TopLeft.position, TopRight.position);
         _horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
 
     }
@@ -242,6 +249,7 @@ public class RatController : MonoBehaviour
     void primeRaycastOrigins()
 	{
         _raycastOrigins.topLeft = TopLeft.position;
+		_raycastOrigins.topRight = TopRight.position;
 		_raycastOrigins.bottomRight = BottomRight.position;
         _raycastOrigins.bottomLeft = BottomLeft.position;
 	}
@@ -253,39 +261,46 @@ public class RatController : MonoBehaviour
 	/// we have to increase the ray distance skinWidth then remember to remove skinWidth from deltaMovement before
 	/// actually moving the player
 	/// </summary>
-	void moveHorizontally( ref Vector3 deltaMovement )
+	Vector3 moveHorizontally( Vector3 deltaMovement )
 	{
 		var isGoingRight = deltaMovement.x > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.x ) + _skinWidth;
 		var rayDirection = isGoingRight ? calc.GetRight() : calc.GetLeft();
 		var initialRayOrigin = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
+		var finalRayOrigin = isGoingRight ? _raycastOrigins.topRight : _raycastOrigins.topLeft;
 
-		for( var i = 0; i < totalHorizontalRays; i++ )
+		Vector3 move = new Vector3(deltaMovement.x, 0f, 0f);
+
+		for ( var i = 0; i < totalHorizontalRays; i++ )
 		{
-			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
+			float t = (float)i / ((float)totalHorizontalRays - 1);
+			var rayOrigin = Vector2.Lerp(initialRayOrigin, finalRayOrigin, t);
 
-			//DrawRay( ray, (rayDirection * rayDistance) * 10, Color.red );
+			DrawRay( rayOrigin, (rayDirection * rayDistance), Color.red );
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
 			if( i == 0 && collisionState.wasGroundedLastFrame )
-				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask );
+				_raycastHit = Physics2D.Raycast( rayOrigin, rayDirection, rayDistance, platformMask );
 
 			if( _raycastHit )
 			{
+				Vector3 raycastHitOffset = _raycastHit.point - rayOrigin;
+				Vector3 raycastHitLocal = this.transform.InverseTransformDirection(raycastHitOffset);
+
 				// set our new deltaMovement and recalculate the rayDistance taking it into account
-				deltaMovement.x = _raycastHit.point.x - ray.x;
-				rayDistance = Mathf.Abs( deltaMovement.x );
+				move.x = raycastHitLocal.x;
+				rayDistance = Mathf.Abs(move.x );
 
 				// remember to remove the skinWidth from our deltaMovement
 				if( isGoingRight )
 				{
-					deltaMovement.x -= _skinWidth;
+					move.x -= _skinWidth;
 					collisionState.right = true;
 				}
 				else
 				{
-					deltaMovement.x += _skinWidth;
+					move.x += _skinWidth;
 					collisionState.left = true;
 				}
 
@@ -297,10 +312,12 @@ public class RatController : MonoBehaviour
 					break;
 			}
 		}
+
+		return transform.TransformDirection(move);
 	}
 
 
-	void moveVertically( ref Vector3 deltaMovement )
+	Vector3 moveVertically( Vector3 deltaMovement )
 	{
 
 		var isGoingUp = deltaMovement.y > 0;
@@ -317,27 +334,32 @@ public class RatController : MonoBehaviour
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = platformMask;
 
-		for( var i = 0; i < totalVerticalRays; i++ )
+		Vector3 move = new Vector3(0f, deltaMovement.y, 0f);
+
+		for ( var i = 0; i < totalVerticalRays; i++ )
 		{
 			var rayOrigin = new Vector2( initialRayOrigin.x + (i * _horizontalDistanceBetweenRays), initialRayOrigin.y );
 
-            //DrawRay( rayOrigin, (rayDirection * rayDistance) * 10, Color.green );
+            DrawRay( rayOrigin, (rayDirection * rayDistance), Color.green );
 			_raycastHit = Physics2D.Raycast( rayOrigin, rayDirection, rayDistance, mask );
 			if( _raycastHit )
 			{
+				Vector3 raycastHitOffset = _raycastHit.point - rayOrigin;
+				Vector3 raycastHitLocal = this.transform.InverseTransformDirection(raycastHitOffset);
+
 				// set our new deltaMovement and recalculate the rayDistance taking it into account
-				deltaMovement.y = _raycastHit.point.y - rayOrigin.y;
-				rayDistance = Mathf.Abs( deltaMovement.y );
+				move.y = raycastHitLocal.y;
+				rayDistance = Mathf.Abs(move.y );
 
 				// remember to remove the skinWidth from our deltaMovement
 				if( isGoingUp )
 				{
-					deltaMovement.y -= _skinWidth;
+					move.y -= _skinWidth;
 					collisionState.above = true;
 				}
 				else
 				{
-					deltaMovement.y += _skinWidth;
+					move.y += _skinWidth;
 					collisionState.below = true;
 				}
 
@@ -348,7 +370,8 @@ public class RatController : MonoBehaviour
 				if( rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor )
 					break;
 			}
-		}
+	}
+		return transform.TransformDirection(move);
 	}
 
 
@@ -381,7 +404,7 @@ public class RatController : MonoBehaviour
     [System.Diagnostics.Conditional("DEBUG_CC2D_RAYS")]
     void DrawRay(Vector3 start, Vector3 dir, Color color)
     {
-        Debug.DrawRay(start, dir, color);
+        Debug.DrawRay(start, dir * 10f, color);
     }
 
 

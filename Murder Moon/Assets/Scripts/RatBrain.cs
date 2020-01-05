@@ -71,7 +71,7 @@ public class RatBrain : MonoBehaviour
 		_velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor );
 
 		// apply gravity before movin
-		_velocity = _velocity + (-1 * (Vector3)(gravity * _controller.GetDown() * Time.deltaTime));
+		_velocity = _velocity + (-1 * (Vector3)(gravity * Vector3.down * Time.deltaTime));
 
 
 		_controller.move( _velocity * Time.deltaTime );
