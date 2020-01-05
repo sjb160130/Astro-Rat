@@ -7,7 +7,6 @@ public class Planet : MonoBehaviour
 	public static Vector2 GetSimpleGravityDirection(Collider2D collider, out Planet closestPlanet)
 	{
 		var planets = GameObject.FindGameObjectsWithTag("Planet");
-		LayerMask lm = LayerMask.NameToLayer("Planet");
 		float closestDistance = float.MaxValue;
 		GameObject closestPlanetGO = null;
 		foreach (var p in planets)
