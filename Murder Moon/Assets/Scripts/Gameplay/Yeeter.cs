@@ -122,6 +122,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 			float angle = Vector2.Angle(Vector2.right, direction);
 			this._heldItem.MyRigidbody.SetRotation(angle);
 			this._heldItem.MyRigidbody.transform.rotation = Quaternion.Euler(0, 0, angle);
+			this._heldItem.MyRigidbody.transform.position = this.ItemMountPoint.transform.position;
 			this._heldItem = null;
 		}
 	}

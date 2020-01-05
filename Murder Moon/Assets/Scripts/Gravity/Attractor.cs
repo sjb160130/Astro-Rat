@@ -7,7 +7,8 @@ public class Attractor : MonoBehaviour
 	public Rigidbody2D MyRigidbody2D;
 
 	const float G = 6.674f;
-
+	// this should use the rigidbody, but since the mass goes away while planets are kinematic, we're just going to do this
+	public float Mass = 1800f;
 	private void OnValidate()
 	{
 		this.MyRigidbody2D = this.MyRigidbody2D ?? GetComponent<Rigidbody2D>();

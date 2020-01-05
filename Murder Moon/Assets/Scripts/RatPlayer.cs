@@ -9,6 +9,7 @@ public class RatPlayer : MonoBehaviour
 
 	[SerializeField]
 	int _playerID;
+	public int PlayerID { get { return _playerID; } }
 
 	public bool Dead { get; private set; }
 	public int Score { get; private set; }
@@ -56,6 +57,8 @@ public class RatPlayer : MonoBehaviour
 		if (Dead)
 			return;
 		Dead = true;
+
+		Debug.Log("Player " + this.PlayerID + " killed");
 
 		StartCoroutine(HandleDeathAndRespawn());
 	}

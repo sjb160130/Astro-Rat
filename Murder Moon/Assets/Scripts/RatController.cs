@@ -7,7 +7,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
 public class RatController : MonoBehaviour
 {
-	public RatCalcuator calc;
+	public RatCalculator calc;
 
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
 	public event Action<Collider2D> onTriggerEnterEvent;
@@ -26,7 +26,7 @@ public class RatController : MonoBehaviour
 
 	private void Awake()
 	{
-		calc = GetComponent<RatCalcuator>();
+		calc = GetComponent<RatCalculator>();
 	}
 
 	public void Move(Vector3 localMoveDelta)
