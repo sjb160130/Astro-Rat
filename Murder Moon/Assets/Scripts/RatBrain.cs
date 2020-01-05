@@ -13,7 +13,6 @@ public class RatBrain : MonoBehaviour
 
 	private RatController _controller;
 	private Animator _animator;
-	private RaycastHit2D _lastControllerColliderHit;
 	private Vector3 _velocity;
 
 
@@ -32,34 +31,34 @@ public class RatBrain : MonoBehaviour
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
 	{
-        if (_controller.isGrounded)
+        if (_controller.IsGrounded)
             _velocity.y = 0;
 
         if ( Input.GetKey( KeyCode.RightArrow ) )
 		{
 			normalizedHorizontalSpeed = 1;
 
-			if( _controller.isGrounded )
+			if( _controller.IsGrounded )
 				_animator.Play( Animator.StringToHash( "Run" ) );
 		}
 		else if( Input.GetKey( KeyCode.LeftArrow ) )
 		{
 			normalizedHorizontalSpeed = -1;
 
-			if( _controller.isGrounded )
+			if( _controller.IsGrounded )
 				_animator.Play( Animator.StringToHash( "Run" ) );
 		}
 		else
 		{
 			normalizedHorizontalSpeed = 0;
 
-			if( _controller.isGrounded )
+			if( _controller.IsGrounded )
 				_animator.Play( Animator.StringToHash( "Idle" ) );
 		}
 
 
 		// we can only jump whilst grounded
-		if( _controller.isGrounded && Input.GetKeyDown( KeyCode.UpArrow ) )
+		if( _controller.IsGrounded && Input.GetKeyDown( KeyCode.UpArrow ) )
 		{
 			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
 			_animator.Play( Animator.StringToHash( "Jump" ) );
@@ -67,17 +66,17 @@ public class RatBrain : MonoBehaviour
 
 
 		// apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
-		var smoothedMovementFactor = _controller.isGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
+		var smoothedMovementFactor = _controller.IsGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
 		_velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor );
 
 		// apply gravity before movin
 		_velocity = _velocity + (-1 * (Vector3)(gravity * Vector3.down * Time.deltaTime));
 
 
-		_controller.move( _velocity * Time.deltaTime );
+		_controller.Move( _velocity * Time.deltaTime );
 
 		// grab our current _velocity to use as a base for all calculations
-		_velocity = _controller.velocity;
+		_velocity = this.transform.InverseTransformDirection(_controller.Velocity);
 	}
 
 

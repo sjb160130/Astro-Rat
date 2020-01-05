@@ -8,7 +8,7 @@ public class RatCalcuator : MonoBehaviour
     private Vector2 calcDown;
     private Vector2 calcUp;
 
-    public void Update()
+    public void UpdateDirections()
     {
 		Planet p;
 		var holder = Planet.GetSimpleGravityDirection(GetComponent<Collider2D>(), out p);
