@@ -15,24 +15,39 @@ public class Projectile : MonoBehaviour
 
 	const float HitOriginDelay = 0.18f; //3 frames at 30fps
 
+	Vector3 _originalScale;
+
+	private void Awake()
+	{
+		_originalScale = this.transform.localScale;
+	}
+
 	internal void Grab(Yeeter yeeter)
 	{
 		IsHeld = true;
 		_lastYeeter = yeeter;
 		MyCollider.enabled = false;
 		MyRigidbody.simulated = false;
+
+		this.transform.SetParent(yeeter.ItemMountPoint);
+		this.transform.Reset();
+		this.transform.localScale = _originalScale;
 	}
 
 	internal void Release()
 	{
+		this.transform.SetParent(null);
+		this.transform.Reset();
+		this.transform.localScale = _originalScale;
+
 		IsHeld = false;
 		_lastHeldTimestamp = Time.time;
 		MyCollider.enabled = true;
 		MyRigidbody.simulated = true;
-		StartCoroutine(MakeInvulnerabale());
+		StartCoroutine(MakeInvulnerable());
 	}
 
-	IEnumerator MakeInvulnerabale()
+	IEnumerator MakeInvulnerable()
 	{
 		Collider2D[] originColliders = _lastYeeter.GetComponentsInChildren<Collider2D>();
 		foreach (var collider in originColliders)
@@ -53,5 +68,8 @@ public class Projectile : MonoBehaviour
 		if (IsHeld == true)
 			return;
 		Debug.Log("hit");
+
+		if (collision.otherCollider.CompareTag("Player"))
+			collision.otherRigidbody.GetComponent<RatPlayer>().Kill();
 	}
 }

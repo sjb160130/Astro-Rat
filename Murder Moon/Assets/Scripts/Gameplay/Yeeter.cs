@@ -37,6 +37,10 @@ public class Yeeter : StateMachine<Yeeter.State>
 	public LineRenderer LineRenderer;
 	public float LineRendererLength = 3f;
 
+	public Transform ItemMountPoint;
+
+	public State CurrentState { get { return this._currentState; } }
+
 	private void OnDrawGizmosSelected()
 	{
 		Gizmos.color = Color.red;
@@ -115,6 +119,9 @@ public class Yeeter : StateMachine<Yeeter.State>
 			direction.Normalize();
 			Debug.Log(_windup01);
 			this._heldItem.MyRigidbody.AddForce(direction * YeetStrength, ForceMode2D.Impulse);
+			float angle = Vector2.Angle(Vector2.right, direction);
+			this._heldItem.MyRigidbody.SetRotation(angle);
+			this._heldItem.MyRigidbody.transform.rotation = Quaternion.Euler(0, 0, angle);
 			this._heldItem = null;
 		}
 	}
@@ -167,22 +174,28 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	private void UpdateLineRenderer()
 	{
+		Vector3 direction = GetYeetDirection();
 		if (this._currentState == State.Charging)
 		{
 			this.LineRenderer.enabled = true;
 			if (LineRenderer.positionCount != 6)
 				LineRenderer.positionCount = 6;
 			Vector3 v1 = this.transform.position;
-			Vector3 v2 = this.transform.position + (GetYeetDirection() * LineRendererLength);
+			Vector3 v2 = this.transform.position + (direction * LineRendererLength);
 			for (int i = 0; i < 6; i++)
 			{
 				float t = ((float)i) / 5f;
-				LineRenderer.SetPosition(i, Vector3.Lerp(v1, v2, t).normalized * LineRendererLength);
+				LineRenderer.SetPosition(i, Vector3.Lerp(v1, v2, t));
 			}
+
+
+			float angle = Vector2.Angle(Vector2.right, direction);
+			this.ItemMountPoint.rotation = Quaternion.Euler(0, 0, angle);
 		}
 		else
 		{
 			this.LineRenderer.enabled = false;
+			this.ItemMountPoint.localRotation = Quaternion.identity;
 		}
 	}
 }

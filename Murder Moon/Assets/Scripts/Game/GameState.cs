@@ -26,6 +26,8 @@ public class GameState : StateMachine<GameState.State>
 	float _gameDuration = 60f;
 	public static float GameTimer { get; private set; }
 
+	public bool IsPlaying { get { return _currentState == State.InGame; } }
+
 	private void Awake()
 	{
 		//singleton
