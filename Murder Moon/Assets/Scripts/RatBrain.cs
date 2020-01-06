@@ -20,6 +20,8 @@ public class RatBrain : MonoBehaviour
 
 	public SpriteRenderer Sprite;
 
+	public bool FacingRight { get; private set; }
+
 	void Awake()
 	{
 		_animator = GetComponent<Animator>();
@@ -53,6 +55,7 @@ public class RatBrain : MonoBehaviour
 				_animator.Play(Animator.StringToHash("Run"));
 
 			Sprite.flipX = false;
+			FacingRight = true;
 		}
 		else if (normalizedHorizontalSpeed < -0.1f)
 		{
@@ -62,6 +65,7 @@ public class RatBrain : MonoBehaviour
 				_animator.Play(Animator.StringToHash("Run"));
 
 			Sprite.flipX = true;
+			FacingRight = false;
 		}
 		else
 		{

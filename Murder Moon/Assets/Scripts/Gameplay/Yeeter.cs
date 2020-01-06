@@ -12,6 +12,11 @@ public class Yeeter : StateMachine<Yeeter.State>
 		Yeeting
 	}
 
+	public enum Direction
+	{
+		None, Left, Right
+	}
+
 	public int PlayerID;
 
 	Rewired.Player _player { get { return Rewired.ReInput.players.GetPlayer(PlayerID); } }
@@ -32,14 +37,20 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	public float YeetStrength = 30f;
 
-	public bool FacingRight = true;
-
 	public LineRenderer LineRenderer;
 	public float LineRendererLength = 3f;
 
 	public Transform ItemMountPoint;
 
 	public State CurrentState { get { return this._currentState; } }
+	public Direction CurrentDirection { get; private set; }
+
+	RatBrain _brain;
+
+	private void Awake()
+	{
+		_brain = GetComponent<RatBrain>();
+	}
 
 	private void OnDrawGizmosSelected()
 	{
@@ -76,7 +87,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 			case State.Holding:
 				if (p.GetButtonDown("Interact"))
 				{
-					SetState(State.Yeeting);
+					SetState(State.Charging);
 				}
 				break;
 			case State.Yeeting:
@@ -103,8 +114,9 @@ public class Yeeter : StateMachine<Yeeter.State>
 			{
 				p.Grab(this);
 				this._heldItem = p;
-				SetState(State.Charging);
+				SetState(State.Holding);
 				Debug.Log("Grab");
+				break;
 			}
 		}
 	}
@@ -138,6 +150,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 			case State.Holding:
 				break;
 			case State.Yeeting:
+				this.CurrentDirection = Direction.None;
 				break;
 			default:
 				break;
@@ -153,6 +166,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 			case State.Charging:
 				_windup01 = 0f;
 				LineRenderer.enabled = true;
+				this.CurrentDirection = _brain.FacingRight ? Direction.Right : Direction.Left;
 				break;
 			case State.Holding:
 				break;
@@ -167,7 +181,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 	Vector3 GetYeetDirection()
 	{
 		Vector2 direction = Vector2.Lerp(
-			FacingRight ? this.transform.right : this.transform.right * -1f,
+			this.CurrentDirection == Direction.Right ? this.transform.right : this.transform.right * -1f,
 			this.transform.up,
 			_windup01 * 0.9f);
 		return direction.normalized;
