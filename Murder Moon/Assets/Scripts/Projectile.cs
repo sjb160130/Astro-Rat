@@ -22,34 +22,46 @@ public class Projectile : MonoBehaviour
 	Planet _lastPlanet;
 	Vector3 _lastGravity;
 
+	const float GravityStrength = 2f;
+
 	private void Awake()
 	{
 		_originalScale = this.transform.localScale;
 	}
 
+	void UpdateDrag()
+	{
+		if (_killMode)
+			this.MyRigidbody.drag = 0f;
+		else
+			this.MyRigidbody.drag = 1f;
+	}
+
 	private void FixedUpdate()
 	{
+		UpdateDrag();
 		Planet planet;
 		Vector3 gravity = Planet.GetSimpleGravityDirection(this.MyCollider, out planet);
-		if (_lastPlanet == null)
+		if (_lastPlanet != null)
 		{
-			_lastPlanet = planet;
-			_lastGravity = gravity;
-			return;
-		}
-		else
-		{
-			Quaternion rot = Quaternion.FromToRotation(gravity, gravity);
 			var r2d = this.GetComponent<Rigidbody2D>();
-			//r2d.velocity = rot * r2d.velocity;
-			if (planet == _lastPlanet)
+			if (_killMode)
 			{
-				float degreesTravelled = Mathf.Abs( Vector2.SignedAngle(_lastGravity, gravity) );
-				r2d.velocity = Vector3.RotateTowards(r2d.velocity, _lastGravity, degreesTravelled * Mathf.Deg2Rad, 0f);
+				//r2d.velocity = rot * r2d.velocity;
+				if (planet == _lastPlanet)
+				{
+					float degreesTravelled = Mathf.Abs(Vector2.SignedAngle(_lastGravity, gravity));
+					r2d.velocity = Vector3.RotateTowards((Vector3)r2d.velocity, (Vector3)GetPerpendicularGravity(r2d.velocity, gravity), degreesTravelled * Mathf.Deg2Rad, 0f);
+				}
 			}
-			_lastPlanet = planet;
-			_lastGravity = gravity;
+			else
+			{
+				if (!r2d.IsSleeping())
+					r2d.AddForce(gravity * GravityStrength);
+			}
 		}
+		_lastPlanet = planet;
+		_lastGravity = gravity;
 	}
 
 	internal void Grab(Yeeter yeeter)
@@ -76,6 +88,16 @@ public class Projectile : MonoBehaviour
 		MyRigidbody.simulated = true;
 		StartCoroutine(MakeInvulnerable());
 		_killMode = true;
+
+		UpdateDrag();
+	}
+
+	Vector2 GetPerpendicularGravity(Vector2 velocity, Vector2 gravity)
+	{
+		Vector2 perpendicular = gravity.Rotate(90f);
+		if (Vector2.Dot(velocity, perpendicular) < 0f)
+			perpendicular *= -1f;
+		return perpendicular;
 	}
 
 	IEnumerator MakeInvulnerable()
@@ -106,5 +128,9 @@ public class Projectile : MonoBehaviour
 			collision.otherRigidbody.GetComponent<RatPlayer>().Kill();
 
 		_killMode = false;
+
+		var r2d = GetComponent<Rigidbody2D>();
+		r2d.velocity = Vector3.zero;
+		r2d.Sleep();
 	}
 }
