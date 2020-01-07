@@ -115,7 +115,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 				p.Grab(this);
 				this._heldItem = p;
 				SetState(State.Holding);
-				Debug.Log("Grab");
+				//Debug.Log("Grab");
 				break;
 			}
 		}
@@ -123,13 +123,13 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	void Yeet()
 	{
-		Debug.Log("yeet");
+		//Debug.Log("yeet");
 		if (this._heldItem != null)
 		{
 			this._heldItem.Release();
 			Vector3 direction = GetYeetDirection();
 			direction.Normalize();
-			Debug.Log(_windup01);
+			//Debug.Log(_windup01);
 			this._heldItem.MyRigidbody.AddForce(direction * YeetStrength, ForceMode2D.Impulse);
 			float angle = Vector2.Angle(Vector2.right, direction);
 			this._heldItem.MyRigidbody.SetRotation(angle);
