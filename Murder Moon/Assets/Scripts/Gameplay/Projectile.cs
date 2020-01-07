@@ -129,8 +129,11 @@ public class Projectile : MonoBehaviour
 
 		_killMode = false;
 
-		var r2d = GetComponent<Rigidbody2D>();
-		r2d.velocity = Vector3.zero;
-		r2d.Sleep();
+		if (collision.collider.CompareTag("Planet"))
+		{
+			var r2d = GetComponent<Rigidbody2D>();
+			r2d.velocity = Vector3.zero;
+			r2d.Sleep();
+		}
 	}
 }
