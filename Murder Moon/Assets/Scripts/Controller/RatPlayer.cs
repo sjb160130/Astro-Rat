@@ -88,6 +88,11 @@ public class RatPlayer : MonoBehaviour
 	IEnumerator Spawn()
 	{
 		SpawnPoint sp = SpawnPoint.GetSpawnPoint(_playerID, false);
+		if (sp == null)
+		{
+			ResetDeath();
+			yield break;
+		}
 		this.transform.position = sp.Point;
 		const float InvicibilityDuration = 1f;
 		yield return new WaitForSeconds(InvicibilityDuration);

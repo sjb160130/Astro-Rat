@@ -4,6 +4,7 @@ public class RatBrain : MonoBehaviour
 {
 	public float gravity = -25f;
 	public float runSpeed = 8f;
+	public float yeetinSpeed = 0.5f;
 	public float groundDamping = 20f; // how fast do we change direction? higher means faster
 	public float inAirDamping = 5f;
 	public float jumpHeight = 3f;
@@ -12,6 +13,8 @@ public class RatBrain : MonoBehaviour
 	private float normalizedHorizontalSpeed = 0;
 
 	private RatController _controller;
+	private RatPlayer _player;
+	private Yeeter _yeeter;
 	private Animator _animator;
 	private Vector3 _velocity;
 
@@ -26,6 +29,8 @@ public class RatBrain : MonoBehaviour
 	{
 		_animator = GetComponent<Animator>();
 		_controller = GetComponent<RatController>();
+		_player = GetComponent<RatPlayer>();
+		_yeeter = GetComponent<Yeeter>();
 		_ratPlayer = GetComponent<RatPlayer>();
 		_ratCalculator = GetComponent<RatCalculator>();
 
@@ -35,6 +40,19 @@ public class RatBrain : MonoBehaviour
 		_controller.onTriggerExitEvent += onTriggerExitEvent;
 	}
 
+	void SetFlipDirection(float direction)
+	{
+		if (direction > 0.1f)
+		{
+			Sprite.flipX = false;
+			FacingRight = true;
+		}
+		else if (direction < -0.1f)
+		{
+			Sprite.flipX = true;
+			FacingRight = false;
+		}
+	}
 
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
@@ -45,11 +63,34 @@ public class RatBrain : MonoBehaviour
 		var player = Rewired.ReInput.players.GetPlayer(this._ratPlayer.PlayerID);
 		Vector2 input = player.GetAxis2D("Move X", "Move Y");
 		Vector3 worldRight = this._ratCalculator.GetRight();
+
 		normalizedHorizontalSpeed = Mathf.Clamp01(Vector3.Project(input * 1.5f, worldRight).magnitude);
 		if (Vector3.Dot(worldRight, input) > 0)
 			normalizedHorizontalSpeed *= -1f;
 
-		if (normalizedHorizontalSpeed > 0.1f)
+		float speed = this.runSpeed;
+		bool canJump = true;
+
+		if (_player.Dead == true)
+		{
+			speed = 0f;
+			_animator.Play(Animator.StringToHash("Dead"));
+		}
+		else if (this._yeeter.CurrentState == Yeeter.State.Charging)
+		{
+			_animator.Play(Animator.StringToHash("Charging"));
+			canJump = false;
+			speed = this.yeetinSpeed;
+			SetFlipDirection(normalizedHorizontalSpeed);
+		}
+		else if (this._yeeter.CurrentState == Yeeter.State.Yeeting)
+		{
+			_animator.Play(Animator.StringToHash("Yeet"));
+			canJump = false;
+			speed = this.yeetinSpeed / 2f;
+			SetFlipDirection(normalizedHorizontalSpeed);
+		}
+		else if (normalizedHorizontalSpeed > 0.1f)
 		{
 			if (_controller.IsGrounded)
 				_animator.Play(Animator.StringToHash("Run"));
@@ -77,7 +118,7 @@ public class RatBrain : MonoBehaviour
 
 
 		// we can only jump whilst grounded
-		if (_controller.IsGrounded && player.GetButtonDown("Jump"))
+		if (_controller.IsGrounded && player.GetButtonDown("Jump") && canJump)
 		{
 			_velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
 			_animator.Play(Animator.StringToHash("Jump"));
@@ -86,7 +127,7 @@ public class RatBrain : MonoBehaviour
 
 		// apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
 		var smoothedMovementFactor = _controller.IsGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
-		_velocity.x = Mathf.Lerp(_velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor);
+		_velocity.x = Mathf.Lerp(_velocity.x, normalizedHorizontalSpeed * speed, Time.deltaTime * smoothedMovementFactor);
 
 		// apply gravity before movin
 		_velocity = _velocity + (-1 * (Vector3)(gravity * Vector3.down * Time.deltaTime));

@@ -124,8 +124,8 @@ public class Projectile : MonoBehaviour
 		if (_killMode == true)
 			Debug.Log("killhit " + collision.collider.gameObject.name);
 
-		if (collision.otherCollider.CompareTag("Player"))
-			collision.otherRigidbody.GetComponent<RatPlayer>().Kill();
+		if (collision.collider.CompareTag("Player"))
+			collision.collider.GetComponent<RatPlayer>().Kill();
 
 		_killMode = false;
 
