@@ -35,6 +35,9 @@ public class RatController : MonoBehaviour
 
 		Vector3 startPoint = this.transform.position;
 
+		if (float.IsNaN(localMoveDelta.x))
+			return;
+
 		this.transform.Translate(localMoveDelta, Space.Self);
 
 		//rotate
