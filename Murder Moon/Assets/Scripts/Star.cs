@@ -16,9 +16,9 @@ public class Star : MonoBehaviour
         
     }
 
-    public void OnTriggerEnter2D(Collider2D col)
+    public void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Hit");
+        GetComponentInChildren<SpriteRenderer>().enabled = false;
     }
 
 }

@@ -27,7 +27,7 @@ public class StarManager : MonoBehaviour
     void Start()
     {
         _pool = GetComponent<PoolManager>();
-        StartCoroutine(Spawn(0.1f));
+        StartCoroutine(Spawn(0.5f));
     }
 
 
@@ -44,6 +44,7 @@ public class StarManager : MonoBehaviour
             StarSpawnPoints location = getRandomSpawnLocation();
 
             var star2 = _pool.spawnObject(star, location.SpawnHere, Quaternion.identity);
+            star2.GetComponentInChildren<SpriteRenderer>().enabled = true;
             star2.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
 
             StartCoroutine(Release(star2));
@@ -54,6 +55,7 @@ public class StarManager : MonoBehaviour
     private IEnumerator Release(GameObject star)
     {
         yield return new WaitForSeconds(5.0F);
+
         _pool.releaseObject(star);
     }
 
