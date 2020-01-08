@@ -33,8 +33,9 @@ public class StarManager : MonoBehaviour
 
     private IEnumerator Spawn(float waitTime)
     {
+        yield return new WaitForSeconds(1.0F);
         _pool.spawnObject(star);
-        _pool.PrintStatus();
+
 
         while (true)
         {
@@ -44,14 +45,24 @@ public class StarManager : MonoBehaviour
 
             var star2 = _pool.spawnObject(star, location.SpawnHere, Quaternion.identity);
             star2.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
+
+            StartCoroutine(Release(star2));
         }
     }
+
+
+    private IEnumerator Release(GameObject star)
+    {
+        yield return new WaitForSeconds(5.0F);
+        _pool.releaseObject(star);
+    }
+
 
 
     private StarSpawnPoints getRandomSpawnLocation()
     {
         var index = Random.Range(0, spawnPoints.Count);
-        index = (index -1) < 0 ? 0 : (index - 1);
+        index = index < 0 ? 0 : index;
         return spawnPoints[index];
     }
 }
