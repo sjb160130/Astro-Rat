@@ -8,10 +8,10 @@ public class WinnerCam : GameView
 {
 	private void Update()
 	{
-		RatPlayer winner = RatPlayer.FindCurrentWinner();
+		RatPlayer winner = GameState.Winner;
 		if (winner == null)
 			return;
 		bool lookAtNull = this.Camera.LookAt == null;
-		this.Camera.LookAt = GameState.Winner.transform;
+		this.Camera.Follow = winner.transform;
 	}
 }

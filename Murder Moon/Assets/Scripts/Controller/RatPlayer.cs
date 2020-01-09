@@ -118,4 +118,10 @@ public class RatPlayer : MonoBehaviour
 			p.ResetPlayer();
 		}
 	}
+
+	internal void AwardPoint()
+	{
+		if (GameState.Instance.IsPlaying)
+			this.Score++;
+	}
 }
