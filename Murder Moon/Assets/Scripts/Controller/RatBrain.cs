@@ -2,7 +2,9 @@
 
 public class RatBrain : MonoBehaviour
 {
-	public float gravity = -25f;
+	public float jumpGravity = -11.84f;
+	public float gravityAfterButtonRelease = -20f;
+	public float gravityAfterPeak = -25f;
 	public float runSpeed = 8f;
 	public float yeetinSpeed = 0.5f;
 	public float groundDamping = 20f; // how fast do we change direction? higher means faster
@@ -17,6 +19,8 @@ public class RatBrain : MonoBehaviour
 	private Yeeter _yeeter;
 	private Animator _animator;
 	private Vector3 _velocity;
+
+	private bool _isHoldingJump;
 
 	RatPlayer _ratPlayer;
 	RatCalculator _ratCalculator;
@@ -123,21 +127,41 @@ public class RatBrain : MonoBehaviour
 				_animator.Play(Animator.StringToHash("Idle"));
 		}
 
+		_isHoldingJump = _isHoldingJump && player.GetButton("Jump");
+
+		float gravity = 0f;
 
 		// we can only jump whilst grounded
 		if (_controller.IsGrounded && player.GetButtonDown("Jump") && canJump)
 		{
-			_velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
+			_velocity.y = Mathf.Sqrt(2f * jumpHeight * -this.jumpGravity);
 			_animator.Play(Animator.StringToHash("Jump"));
+			_isHoldingJump = true;
+			gravity = 0f;
 		}
+		else if (_velocity.y <= 0f)
+		{
+			// apply down gravity
+			gravity = gravityAfterPeak;
+		}
+		else if (_isHoldingJump)
+		{
+			// apply held gravity
+			gravity = this.jumpGravity;
+		}
+		else
+		{
+			// apply releaded gravity
+			gravity = gravityAfterButtonRelease;
+		}
+
+		//apply gravity
+		_velocity.y = _velocity.y + (gravity * Time.deltaTime);
 
 
 		// apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
 		var smoothedMovementFactor = _controller.IsGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
 		_velocity.x = Mathf.Lerp(_velocity.x, normalizedHorizontalSpeed * speed, Time.deltaTime * smoothedMovementFactor);
-
-		// apply gravity before movin
-		_velocity = _velocity + (-1 * (Vector3)(gravity * Vector3.down * Time.deltaTime));
 
 		FixNaN();
 		_controller.Move(_velocity * Time.deltaTime);
