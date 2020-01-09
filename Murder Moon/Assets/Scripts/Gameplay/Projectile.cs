@@ -12,6 +12,9 @@ public class Projectile : MonoBehaviour
 
 	public Rigidbody2D MyRigidbody;
 	public Collider2D MyCollider;
+	public Animator Animator;
+
+	public bool SpinOnThrow;
 
 	const float HitOriginDelay = 8f / 30f; //8 frames at 30fps
 
@@ -90,6 +93,9 @@ public class Projectile : MonoBehaviour
 		_killMode = true;
 
 		UpdateDrag();
+
+		if (SpinOnThrow)
+			this.Animator?.Play("ItemSpin");
 	}
 
 	Vector2 GetPerpendicularGravity(Vector2 velocity, Vector2 gravity)
@@ -130,6 +136,9 @@ public class Projectile : MonoBehaviour
 		}
 
 		_killMode = false;
+
+		if (SpinOnThrow)
+			this.Animator?.Play("ItemIdle");
 
 		if (collision.collider.CompareTag("Planet"))
 		{
