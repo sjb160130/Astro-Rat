@@ -19,6 +19,7 @@ public class StarManager : MonoBehaviour
     public GameObject star;
     private PoolManager _pool;
 
+    public List<GameObject> items;
 
     public List<StarSpawnPoints> spawnPoints;
 
@@ -46,7 +47,7 @@ public class StarManager : MonoBehaviour
             var star2 = _pool.spawnObject(star, location.SpawnHere, Quaternion.identity);
             star2.GetComponentInChildren<SpriteRenderer>().enabled = true;
             star2.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
-
+            star2.GetComponent<Star>().itemToSpawn = ReturnItem();
             StartCoroutine(Release(star2));
         }
     }
@@ -59,7 +60,10 @@ public class StarManager : MonoBehaviour
         _pool.releaseObject(star);
     }
 
-
+    private GameObject ReturnItem()
+    {
+        return items[0];
+    }
 
     private StarSpawnPoints getRandomSpawnLocation()
     {

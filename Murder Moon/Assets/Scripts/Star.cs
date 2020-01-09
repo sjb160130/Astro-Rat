@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Star : MonoBehaviour
-{
+{   
+    [HideInInspector]
+    public GameObject itemToSpawn;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +22,7 @@ public class Star : MonoBehaviour
     public void OnCollisionEnter2D(Collision2D collision)
     {
         GetComponentInChildren<SpriteRenderer>().enabled = false;
+        Instantiate(itemToSpawn, transform.position, Quaternion.identity);
     }
 
 }
