@@ -43,7 +43,7 @@ public class ParallaxLayer : MonoBehaviour
 		if (!Application.isPlaying && !Options.moveParallax)
 			return;
 
-		_zoomSpeed01 = Mathf.MoveTowards(_zoomSpeed01, GameState.Instance.IsAtStartScreen ? 1f : 0f, Time.deltaTime);
+		_zoomSpeed01 = Mathf.MoveTowards(_zoomSpeed01, GameState.Instance.IsAtStartScreen ? 1f : 0f, Time.deltaTime * 0.5f);
 		float tZoomDelta = Time.deltaTime * AutoscrollSpeed * (1f - this.speedY) * Mathf.SmoothStep(0f, 1f, _zoomSpeed01);
 		_zoomTileAmount += tZoomDelta;
 
