@@ -18,6 +18,8 @@ public class DisplayPlayerTapIn : MonoBehaviour
 	public float NoiseMagnitudeY = 1f;
 	public float NoiseSpeedY = 1f;
 
+	float _speed01 = 1f;
+
 	Vector3 _targetPosition;
 
 	public Animator Animator;
@@ -51,7 +53,7 @@ public class DisplayPlayerTapIn : MonoBehaviour
 
 		float noiseX = Mathf.PerlinNoise(this.transform.position.x, this.transform.position.y + (Time.time * NoiseSpeedX)) * this.NoiseMagnitudeX;
 		float noiseY = Mathf.PerlinNoise(this.transform.position.x + (Time.time * NoiseSpeedY), this.transform.position.y) * this.NoiseMagnitudeY;
-		Vector3 target = _targetPosition + new Vector3(noiseX, noiseY, 0f) - new Vector3(-0.5f, -0.5f, 0f);
+		Vector3 target = _targetPosition + new Vector3(noiseX, noiseY, 0f) - new Vector3(-0.5f * NoiseMagnitudeX, -0.5f * NoiseMagnitudeY, 0f);
 		this.transform.position = Vector3.Lerp(this.transform.position, target, Time.deltaTime * LerpSpeed);
 	}
 }

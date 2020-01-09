@@ -27,6 +27,7 @@ public class GameState : StateMachine<GameState.State>
 	public static float GameTimer { get; private set; }
 
 	public bool IsPlaying { get { return _currentState == State.InGame; } }
+	public bool IsAtStartScreen { get { return _currentState == State.GameStart; } }
 
 	private void Awake()
 	{
