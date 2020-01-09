@@ -25,6 +25,12 @@ public class RatBrain : MonoBehaviour
 
 	public bool FacingRight { get; private set; }
 
+	void FixNaN()
+	{
+		if (float.IsNaN(this._velocity.x))
+			this._velocity = Vector3.zero;
+	}
+
 	void Awake()
 	{
 		_animator = GetComponent<Animator>();
@@ -57,6 +63,7 @@ public class RatBrain : MonoBehaviour
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
 	{
+		FixNaN();
 		if (_controller.IsGrounded)
 			_velocity.y = 0;
 
@@ -132,7 +139,7 @@ public class RatBrain : MonoBehaviour
 		// apply gravity before movin
 		_velocity = _velocity + (-1 * (Vector3)(gravity * Vector3.down * Time.deltaTime));
 
-
+		FixNaN();
 		_controller.Move(_velocity * Time.deltaTime);
 
 		// grab our current _velocity to use as a base for all calculations

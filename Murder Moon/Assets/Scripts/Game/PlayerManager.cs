@@ -35,6 +35,10 @@ public class PlayerManager : Singleton<PlayerManager>
 		return true;
 	}
 
+	public bool IsReady(int id) {
+		return IsPlaying(id) && _players[id].Ready;
+	}
+
 	public bool IsPlaying(int id) {
 		return _players.ContainsKey(id);
 	}
