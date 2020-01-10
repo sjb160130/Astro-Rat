@@ -29,7 +29,7 @@ public class RatBrain : MonoBehaviour
 	private RatPlayer _ratPlayer;
 	private RatCalculator _ratCalculator;
 	private Grabbable _grabbable;
-	private Rigidbody _myRigidbody;
+	private Rigidbody2D _myRigidbody;
 
 	private bool IsYote = false;
 
@@ -50,7 +50,7 @@ public class RatBrain : MonoBehaviour
 		_grabbable = GetComponent<Grabbable>();
 		_grabbable.OnGrabCallback += this.OnGrab;
 		_grabbable.OnReleaseCallback += this.OnRelease;
-		_myRigidbody = GetComponent<Rigidbody>();
+		_myRigidbody = GetComponent<Rigidbody2D>();
 
 		// listen to some events for illustration purposes
 		_controller.onControllerCollidedEvent += onControllerCollider;
@@ -126,6 +126,8 @@ public class RatBrain : MonoBehaviour
 			_animator.Play(Animator.StringToHash("Yeet"));
 			canJump = false;
 			speed = this.yeetinSpeed / 2f;
+			this._velocity = Vector3.zero;
+			this._myRigidbody.velocity = Vector3.zero;
 		}
 		else if (normalizedHorizontalSpeed > 0.1f)
 		{

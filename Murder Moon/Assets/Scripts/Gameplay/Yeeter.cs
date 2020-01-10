@@ -113,6 +113,9 @@ public class Yeeter : StateMachine<Yeeter.State>
 				continue;
 			if (p.IsHeld == false)
 			{
+				RatPlayer player = p.GetComponent<RatPlayer>();
+				if (player != null && player.Dead == true)
+					continue;
 				p.Grab(this);
 				this._heldItem = p;
 				SetState(State.Holding);
