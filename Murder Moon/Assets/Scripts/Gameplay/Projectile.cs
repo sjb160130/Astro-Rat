@@ -3,22 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class Projectile : Grabbable
 {
-	public bool IsHeld { get; internal set; }
-
-	Yeeter _lastYeeter;
-	float _lastHeldTimestamp;
-
-	public Rigidbody2D MyRigidbody;
-	public Collider2D MyCollider;
 	public Animator Animator;
 
 	public bool SpinOnThrow;
-
-	const float HitOriginDelay = 8f / 30f; //8 frames at 30fps
-
-	Vector3 _originalScale;
 
 	bool _killMode = false;
 
@@ -27,10 +16,7 @@ public class Projectile : MonoBehaviour
 
 	const float GravityStrength = 2f;
 
-	private void Awake()
-	{
-		_originalScale = this.transform.localScale;
-	}
+	public bool Kills = true;
 
 	void UpdateDrag()
 	{
@@ -43,11 +29,13 @@ public class Projectile : MonoBehaviour
 	private void FixedUpdate()
 	{
 		UpdateDrag();
+		var r2d = this.GetComponent<Rigidbody2D>();
+		if (r2d.isKinematic)
+			return;
 		Planet planet;
 		Vector3 gravity = Planet.GetSimpleGravityDirection(this.MyCollider, out planet);
 		if (_lastPlanet != null)
 		{
-			var r2d = this.GetComponent<Rigidbody2D>();
 			if (_killMode)
 			{
 				//r2d.velocity = rot * r2d.velocity;
@@ -67,29 +55,21 @@ public class Projectile : MonoBehaviour
 		_lastGravity = gravity;
 	}
 
-	internal void Grab(Yeeter yeeter)
+	protected void RevolvePlanet(Planet p, Vector3 gravity)
 	{
-		IsHeld = true;
-		_lastYeeter = yeeter;
-		MyCollider.enabled = false;
-		MyRigidbody.simulated = false;
 
-		this.transform.SetParent(yeeter.ItemMountPoint);
-		this.transform.Reset();
-		this.transform.localScale = _originalScale;
 	}
 
-	internal void Release()
+	protected override void OnGrab()
 	{
-		this.transform.SetParent(null);
-		this.transform.Reset();
-		this.transform.localScale = _originalScale;
+	}
 
-		IsHeld = false;
-		_lastHeldTimestamp = Time.time;
-		MyCollider.enabled = true;
-		MyRigidbody.simulated = true;
-		StartCoroutine(MakeInvulnerable());
+	public void ResetKillmode() {
+		_killMode = false;
+	}
+
+	protected override void OnRelease()
+	{
 		_killMode = true;
 
 		UpdateDrag();
@@ -106,22 +86,6 @@ public class Projectile : MonoBehaviour
 		return perpendicular;
 	}
 
-	IEnumerator MakeInvulnerable()
-	{
-		Collider2D[] originColliders = _lastYeeter.GetComponentsInChildren<Collider2D>();
-		foreach (var collider in originColliders)
-		{
-			Physics2D.IgnoreCollision(collider, this.MyCollider, true);
-		}
-
-		yield return new WaitForSeconds(HitOriginDelay);
-
-		foreach (var collider in originColliders)
-		{
-			Physics2D.IgnoreCollision(collider, this.MyCollider, false);
-		}
-	}
-
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		if (IsHeld == true)
@@ -130,8 +94,9 @@ public class Projectile : MonoBehaviour
 		if (_killMode == true)
 			Debug.Log("killhit " + collision.collider.gameObject.name);
 
-		if (collision.collider.CompareTag("Player") && _killMode) {
-			_lastYeeter.GetComponent<RatPlayer>().AwardPoint();
+		if (collision.collider.CompareTag("Player") && _killMode && Kills)
+		{
+			this.LastYeeter.GetComponent<RatPlayer>().AwardPoint();
 			collision.collider.GetComponent<RatPlayer>().Kill();
 		}
 

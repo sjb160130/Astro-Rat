@@ -17,9 +17,9 @@ public class Yeeter : StateMachine<Yeeter.State>
 		None, Left, Right
 	}
 
-	public int PlayerID;
+	private int _playerID;
 
-	Rewired.Player _player { get { return Rewired.ReInput.players.GetPlayer(PlayerID); } }
+	Rewired.Player _player { get { return Rewired.ReInput.players.GetPlayer(_playerID); } }
 
 	public float WindupDuration = 1.2f;
 	float _windup01;
@@ -29,7 +29,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	public float GrabRadius = 1f;
 
-	Projectile _heldItem;
+	Grabbable _heldItem;
 
 	public LayerMask GrabbableItemMask;
 
@@ -50,6 +50,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 	private void Awake()
 	{
 		_brain = GetComponent<RatBrain>();
+		_playerID = GetComponent<RatPlayer>().PlayerID;
 	}
 
 	private void OnDrawGizmosSelected()
@@ -107,8 +108,8 @@ public class Yeeter : StateMachine<Yeeter.State>
 			= Physics2D.OverlapCircleNonAlloc(this.transform.position, this.GrabRadius, _grabResults, GrabbableItemMask);
 		for (int i = 0; i < resultsCount; i++)
 		{
-			Projectile p = _grabResults[i].GetComponent<Projectile>();
-			if (p == null)
+			Grabbable p = _grabResults[i].GetComponent<Grabbable>();
+			if (p == null || p.gameObject == this.gameObject)
 				continue;
 			if (p.IsHeld == false)
 			{
@@ -119,6 +120,20 @@ public class Yeeter : StateMachine<Yeeter.State>
 				break;
 			}
 		}
+	}
+
+	public void Drop()
+	{
+		if (_heldItem == null)
+			return;
+
+		this._heldItem.Release();
+		//Debug.Log(_windup01);
+		this._heldItem.MyRigidbody.transform.position = this.ItemMountPoint.transform.position;
+		this._heldItem.MyRigidbody.velocity = Vector2.zero;
+		this._heldItem.MyRigidbody.AddTorque(Random.Range(-5f, 5f), ForceMode2D.Impulse);
+		this._heldItem = null;
+		this.SetState(State.Empty);
 	}
 
 	void Yeet()
@@ -135,6 +150,7 @@ public class Yeeter : StateMachine<Yeeter.State>
 			this._heldItem.MyRigidbody.SetRotation(angle);
 			this._heldItem.MyRigidbody.transform.rotation = Quaternion.Euler(0, 0, angle);
 			this._heldItem.MyRigidbody.transform.position = this.ItemMountPoint.transform.position;
+			this._heldItem.MyRigidbody.AddTorque(Random.Range(-5f, 5f), ForceMode2D.Impulse);
 			this._heldItem = null;
 		}
 	}

@@ -11,6 +11,10 @@ public class RatBrain : MonoBehaviour
 	public float inAirDamping = 5f;
 	public float jumpHeight = 3f;
 
+	public SpriteRenderer Sprite;
+
+	public bool FacingRight { get; private set; }
+
 	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
 
@@ -22,12 +26,12 @@ public class RatBrain : MonoBehaviour
 
 	private bool _isHoldingJump;
 
-	RatPlayer _ratPlayer;
-	RatCalculator _ratCalculator;
+	private RatPlayer _ratPlayer;
+	private RatCalculator _ratCalculator;
+	private Grabbable _grabbable;
+	private Rigidbody _myRigidbody;
 
-	public SpriteRenderer Sprite;
-
-	public bool FacingRight { get; private set; }
+	private bool IsYote = false;
 
 	void FixNaN()
 	{
@@ -43,11 +47,15 @@ public class RatBrain : MonoBehaviour
 		_yeeter = GetComponent<Yeeter>();
 		_ratPlayer = GetComponent<RatPlayer>();
 		_ratCalculator = GetComponent<RatCalculator>();
+		_grabbable = GetComponent<Grabbable>();
+		_grabbable.OnGrabCallback += this.OnGrab;
+		_grabbable.OnReleaseCallback += this.OnRelease;
+		_myRigidbody = GetComponent<Rigidbody>();
 
 		// listen to some events for illustration purposes
 		_controller.onControllerCollidedEvent += onControllerCollider;
-		_controller.onTriggerEnterEvent += onTriggerEnterEvent;
-		_controller.onTriggerExitEvent += onTriggerExitEvent;
+		_controller.onTriggerEnterEvent += OnTriggerEnterEvent;
+		_controller.onTriggerExitEvent += OnTriggerExitEvent;
 	}
 
 	void SetFlipDirection(float direction)
@@ -66,6 +74,26 @@ public class RatBrain : MonoBehaviour
 
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
+	{
+		if (this._grabbable.IsHeld)
+		{
+			//try escaping?
+		}
+		else if (this.IsYote)
+		{
+			Rewired.Player p = Rewired.ReInput.players.GetPlayer(this._ratPlayer.PlayerID);
+			if (p.GetButtonDown("Jump") || p.GetButtonDown("Interact"))
+			{
+				LeaveYote();
+			}
+		}
+		else
+		{
+			DoMove();
+		}
+	}
+
+	void DoMove()
 	{
 		FixNaN();
 		if (_controller.IsGrounded)
@@ -92,22 +120,19 @@ public class RatBrain : MonoBehaviour
 			_animator.Play(Animator.StringToHash("Charging"));
 			canJump = false;
 			speed = this.yeetinSpeed;
-			SetFlipDirection(normalizedHorizontalSpeed);
 		}
 		else if (this._yeeter.CurrentState == Yeeter.State.Yeeting)
 		{
 			_animator.Play(Animator.StringToHash("Yeet"));
 			canJump = false;
 			speed = this.yeetinSpeed / 2f;
-			SetFlipDirection(normalizedHorizontalSpeed);
 		}
 		else if (normalizedHorizontalSpeed > 0.1f)
 		{
 			if (_controller.IsGrounded)
 				_animator.Play(Animator.StringToHash("Run"));
 
-			Sprite.flipX = false;
-			FacingRight = true;
+			SetFlipDirection(normalizedHorizontalSpeed);
 		}
 		else if (normalizedHorizontalSpeed < -0.1f)
 		{
@@ -116,8 +141,7 @@ public class RatBrain : MonoBehaviour
 			if (_controller.IsGrounded)
 				_animator.Play(Animator.StringToHash("Run"));
 
-			Sprite.flipX = true;
-			FacingRight = false;
+			SetFlipDirection(normalizedHorizontalSpeed);
 		}
 		else
 		{
@@ -182,15 +206,42 @@ public class RatBrain : MonoBehaviour
 	}
 
 
-	void onTriggerEnterEvent(Collider2D col)
+	void OnTriggerEnterEvent(Collider2D col)
 	{
 		Debug.Log("onTriggerEnterEvent: " + col.gameObject.name);
 	}
 
 
-	void onTriggerExitEvent(Collider2D col)
+	void OnTriggerExitEvent(Collider2D col)
 	{
 		Debug.Log("onTriggerExitEvent: " + col.gameObject.name);
 	}
 
+	private void OnCollisionEnter(Collision collision)
+	{
+		LeaveYote();
+	}
+
+	void LeaveYote()
+	{
+		if (IsYote)
+		{
+			this._animator.Play("Idle");
+			this._yeeter.enabled = true;
+			this._velocity = this._myRigidbody.velocity;
+			this.IsYote = false;
+			GetComponent<Projectile>()?.ResetKillmode();
+		}
+	}
+
+	protected void OnRelease()
+	{
+		IsYote = true;
+	}
+
+	protected void OnGrab()
+	{
+		this._yeeter.Drop();
+		this._yeeter.enabled = false;
+	}
 }
