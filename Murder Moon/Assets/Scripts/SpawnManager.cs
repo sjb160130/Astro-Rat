@@ -22,13 +22,24 @@ public class SpawnManager : MonoBehaviour
     public List<GameObject> items;
     public List<SpawnPoints> spawnPoints;
 
-
+    private bool hasStartedSpawningStars = false;
 
     void Start()
     {
-        _pool = GetComponent<PoolManager>();
-        StartCoroutine(Spawn(1.0f));
+        _pool = GetComponent<PoolManager>();     
     }
+
+    private void Update()
+    {
+        
+        if(GameState.Instance.IsPlaying && !hasStartedSpawningStars)
+        {
+            hasStartedSpawningStars = true;
+            StartCoroutine(Spawn(1.0f));
+        }
+
+    }
+
 
 
     private IEnumerator Spawn(float waitTime)
