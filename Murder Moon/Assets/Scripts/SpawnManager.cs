@@ -63,14 +63,20 @@ public class SpawnManager : MonoBehaviour
         SpawnPoints location = getRandomSpawnLocation();
         var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
         star.GetComponentInChildren<SpriteRenderer>().enabled = true;
-        star.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
+
+        var forceVariance = new Vector2(
+            location.DirectionToShoot.x + Random.Range(-1.0F, 1.0F), 
+            location.DirectionToShoot.y + Random.Range(-1.0F, 1.0F)
+            );
+
+        star.GetComponent<Rigidbody2D>().AddForce(forceVariance);
         star.GetComponent<Star>().itemToSpawn = ReturnItem();
         return _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
     }
 
     private IEnumerator Release(GameObject star)
     {
-        yield return new WaitForSeconds(5.0F);
+        yield return new WaitForSeconds(4.0F);
 
         _pool.releaseObject(star);
     }
