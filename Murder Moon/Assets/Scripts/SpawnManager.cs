@@ -63,6 +63,8 @@ public class SpawnManager : MonoBehaviour
         SpawnPoints location = getRandomSpawnLocation();
         var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
         star.GetComponentInChildren<SpriteRenderer>().enabled = true;
+        star.GetComponent<TrailRenderer>().enabled = true;
+        star.GetComponent<ParticleSystem>().Play();
 
         var forceVariance = new Vector2(
             location.DirectionToShoot.x + Random.Range(-1.0F, 1.0F), 
@@ -77,7 +79,6 @@ public class SpawnManager : MonoBehaviour
     private IEnumerator Release(GameObject star)
     {
         yield return new WaitForSeconds(4.0F);
-
         _pool.releaseObject(star);
     }
 

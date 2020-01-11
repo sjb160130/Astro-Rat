@@ -22,6 +22,8 @@ public class Star : MonoBehaviour
     public void OnCollisionEnter2D(Collision2D collision)
     {
         GetComponentInChildren<SpriteRenderer>().enabled = false;
+        GetComponent<ParticleSystem>().Stop();
+        GetComponent<TrailRenderer>().enabled = false;
         Instantiate(itemToSpawn, transform.position, Quaternion.identity);
     }
 
