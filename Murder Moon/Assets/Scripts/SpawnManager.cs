@@ -6,7 +6,7 @@ using PKG;
 using Random = UnityEngine.Random;
 
 [Serializable]
-public class StarSpawnPoints
+public class SpawnPoints
 {
     [SerializeField]
     public Vector3 SpawnHere;
@@ -14,44 +14,48 @@ public class StarSpawnPoints
     public Vector2 DirectionToShoot;
 }
 
-public class StarManager : MonoBehaviour
+public class SpawnManager : MonoBehaviour
 {
-    public GameObject star;
+    public GameObject starPrefab;
     private PoolManager _pool;
 
     public List<GameObject> items;
-
-    public List<StarSpawnPoints> spawnPoints;
+    public List<SpawnPoints> spawnPoints;
 
 
 
     void Start()
     {
         _pool = GetComponent<PoolManager>();
-        StartCoroutine(Spawn(0.5f));
+        StartCoroutine(Spawn(1.0f));
     }
 
 
     private IEnumerator Spawn(float waitTime)
     {
-        yield return new WaitForSeconds(1.0F);
-        _pool.spawnObject(star);
+        yield return new WaitForSeconds(0.1F);
+        var star = SpawnStar();
+        StartCoroutine(Release(star));
 
+        yield return new WaitForSeconds(1.0F);
 
         while (true)
         {
             yield return new WaitForSeconds(waitTime);
-
-            StarSpawnPoints location = getRandomSpawnLocation();
-
-            var star2 = _pool.spawnObject(star, location.SpawnHere, Quaternion.identity);
-            star2.GetComponentInChildren<SpriteRenderer>().enabled = true;
-            star2.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
-            star2.GetComponent<Star>().itemToSpawn = ReturnItem();
+            var star2 = SpawnStar();
             StartCoroutine(Release(star2));
         }
     }
 
+    private GameObject SpawnStar()
+    {
+        SpawnPoints location = getRandomSpawnLocation();
+        var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
+        star.GetComponentInChildren<SpriteRenderer>().enabled = true;
+        star.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
+        star.GetComponent<Star>().itemToSpawn = ReturnItem();
+        return _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
+    }
 
     private IEnumerator Release(GameObject star)
     {
@@ -65,7 +69,7 @@ public class StarManager : MonoBehaviour
         return items[0];
     }
 
-    private StarSpawnPoints getRandomSpawnLocation()
+    private SpawnPoints getRandomSpawnLocation()
     {
         var index = Random.Range(0, spawnPoints.Count);
         index = index < 0 ? 0 : index;
