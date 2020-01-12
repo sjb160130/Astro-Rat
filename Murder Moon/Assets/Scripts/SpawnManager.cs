@@ -18,7 +18,7 @@ public class SpawnPoint
 public class SpawnManager : MonoBehaviour
 {
     public GameObject starPrefab;
-    private PoolManager _pool;
+    private PoolManager _pool {  get { return PoolManager.Instance; } }
 
     public List<GameObject> items;
     public List<SpawnPoint> spawnPoints;
@@ -31,11 +31,6 @@ public class SpawnManager : MonoBehaviour
 	{
 		Instance = this;
 	}
-
-	void Start()
-    {
-        _pool = GetComponent<PoolManager>();     
-    }
 
     private void Update()
     {
