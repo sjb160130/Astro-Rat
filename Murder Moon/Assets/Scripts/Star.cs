@@ -7,6 +7,8 @@ public class Star : MonoBehaviour
     [HideInInspector]
     public GameObject itemToSpawn;
 
+    public AudioClip soundWhenHittingSomething;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +23,8 @@ public class Star : MonoBehaviour
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
+        AudioManager.Instance.PlaySound(soundWhenHittingSomething, transform.position);
+
         GetComponentInChildren<SpriteRenderer>().enabled = false;
         GetComponent<ParticleSystem>().Stop();
         GetComponent<TrailRenderer>().enabled = false;

@@ -14,6 +14,7 @@ public class SpawnPoints
     public Vector2 DirectionToShoot;
 }
 
+
 public class SpawnManager : MonoBehaviour
 {
     public GameObject starPrefab;
@@ -23,6 +24,8 @@ public class SpawnManager : MonoBehaviour
     public List<SpawnPoints> spawnPoints;
 
     private bool hasStartedSpawningStars = false;
+
+
 
     void Start()
     {
@@ -125,5 +128,6 @@ public class SpawnManager : MonoBehaviour
 
         return spawnPoints[spawnPlayerHereIndex];
     }
+
 }
 
