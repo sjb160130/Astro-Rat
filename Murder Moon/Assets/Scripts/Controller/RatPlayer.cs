@@ -26,13 +26,17 @@ public class RatPlayer : MonoBehaviour
 		bool tie = false;
 		foreach (RatPlayer player in _players)
 		{
-			if (PlayerManager.Instance.IsPlaying(player.PlayerID) == false)
-				continue;
+            if (PlayerManager.Instance.IsPlaying(player.PlayerID) == false)
+            {
+                player.GetComponent<RatBrain>().SetCrownWinner(false);
+                continue;
+            }
 			if (player.Score > highestScore)
 			{
 				tie = false;
 				winner = player;
 				highestScore = player.Score;
+                player.GetComponent<RatBrain>().SetCrownWinner(true);
 			}
 			else if (player.Score == highestScore)
 				tie = true;

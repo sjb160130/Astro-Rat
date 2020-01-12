@@ -15,7 +15,9 @@ public class RatBrain : MonoBehaviour
 
 	public bool FacingRight { get; private set; }
 
-	[HideInInspector]
+    public SpriteRenderer crownSprite;
+
+    [HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
 
 	private RatController _controller;
@@ -56,7 +58,9 @@ public class RatBrain : MonoBehaviour
 		_controller.onControllerCollidedEvent += onControllerCollider;
 		_controller.onTriggerEnterEvent += OnTriggerEnterEvent;
 		_controller.onTriggerExitEvent += OnTriggerExitEvent;
-	}
+
+        crownSprite.enabled = false;
+    }
 
 	void SetFlipDirection(float direction)
 	{
@@ -196,6 +200,10 @@ public class RatBrain : MonoBehaviour
 		_velocity = this.transform.InverseTransformDirection(_controller.Velocity);
 	}
 
+    public void SetCrownWinner(bool flag)
+    {
+        crownSprite.enabled = flag;
+    }
 
 	void onControllerCollider(RaycastHit2D hit)
 	{
