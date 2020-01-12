@@ -35,14 +35,14 @@ public class SpawnManager : MonoBehaviour
         if(GameState.Instance.IsPlaying && !hasStartedSpawningStars)
         {
             hasStartedSpawningStars = true;
-            StartCoroutine(Spawn(1.0f));
+            StartCoroutine(SpawnStarsWhileGameIsRunning(1.0f));
         }
 
     }
 
 
 
-    private IEnumerator Spawn(float waitTime)
+    private IEnumerator SpawnStarsWhileGameIsRunning(float waitTime)
     {
         yield return new WaitForSeconds(0.1F);
         var star = SpawnStar();
@@ -50,17 +50,19 @@ public class SpawnManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.0F);
 
-        while (true)
+        while (GameState.Instance.IsPlaying)
         {
             yield return new WaitForSeconds(waitTime);
             var star2 = SpawnStar();
             StartCoroutine(Release(star2));
         }
+
+        hasStartedSpawningStars = false;
     }
 
     private GameObject SpawnStar()
     {
-        SpawnPoints location = getRandomSpawnLocation();
+        SpawnPoints location = getRandomStarSpawnLocation();
         var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
         star.GetComponentInChildren<SpriteRenderer>().enabled = true;
         star.GetComponent<TrailRenderer>().enabled = true;
@@ -84,14 +86,44 @@ public class SpawnManager : MonoBehaviour
 
     private GameObject ReturnItem()
     {
-        return items[0];
+        var index = Random.Range(0, items.Count);
+        index = index < 0 ? 0 : index;
+        return items[index];
     }
 
-    private SpawnPoints getRandomSpawnLocation()
+    private SpawnPoints getRandomStarSpawnLocation()
     {
         var index = Random.Range(0, spawnPoints.Count);
         index = index < 0 ? 0 : index;
         return spawnPoints[index];
+    }
+
+
+
+    //private GameObject RespawnPlayer()
+    //{
+    //    SpawnPoints location = getRandomPlayerSpawnLocation();
+
+
+    //    var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
+
+ 
+    //    star.GetComponent<Rigidbody2D>().AddForce(location.DirectionToShoot);
+
+    //    return _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
+    //}
+
+    int lastPlayerSpawnIndex = 1;
+    private SpawnPoints getRandomPlayerSpawnLocation()
+    {
+        int spawnPlayerHereIndex = lastPlayerSpawnIndex;
+
+        while (spawnPlayerHereIndex == lastPlayerSpawnIndex)
+        {
+            spawnPlayerHereIndex = Random.Range(0, spawnPoints.Count);
+        }
+
+        return spawnPoints[spawnPlayerHereIndex];
     }
 }
 
