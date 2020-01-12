@@ -29,7 +29,9 @@ public class AudioManager : MonoBehaviour
 		Instance = this;
 		_container = new GameObject("Audio Container");
 		_battleTrackSource = BuildAudioSource(MixerGroup.Music, true);
+		_battleTrackSource.clip = this.BattleTrack;
 		_idleTrackSource = BuildAudioSource(MixerGroup.Music, true);
+		_idleTrackSource.clip = this.IdleTrack;
 
 		_prefab = BuildAudioSource().gameObject;
 	}

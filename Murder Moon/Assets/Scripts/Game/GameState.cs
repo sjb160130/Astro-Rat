@@ -94,9 +94,12 @@ public class GameState : StateMachine<GameState.State>
 		}
 	}
 
-	IEnumerator StartDirectorRoutine() {
+	IEnumerator StartDirectorRoutine()
+	{
+		AudioManager.Instance.PlaySong(AudioManager.Song.Nothing);
 		yield return new WaitForSeconds(RatShipRespawner.AnimationLength + ShipDelay);
 		this.GameStartDirector.gameObject.SetActive(true);
+		AudioManager.Instance.PlaySong(AudioManager.Song.Battle);
 		yield return new WaitForSeconds(2f);
 		this.GameStartDirector.gameObject.SetActive(false);
 	}
@@ -143,6 +146,7 @@ public class GameState : StateMachine<GameState.State>
 				PlayerManager.Instance.Reset();
 				PlayerManager.Instance.Locked = false;
 				RatPlayer.ResetAllPlayers();
+				AudioManager.Instance.PlaySong(AudioManager.Song.Main);
 				break;
 			case State.InGame:
 				GameTimer = _gameDuration;
@@ -156,6 +160,7 @@ public class GameState : StateMachine<GameState.State>
 			case State.VictoryScreen:
 				StartCoroutine(VictoryScreenDelay());
 				WinnerDirector.gameObject.SetActive(true);
+				AudioManager.Instance.PlaySong(AudioManager.Song.Nothing);
 				break;
 			default:
 				break;
