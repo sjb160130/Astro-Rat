@@ -2,6 +2,7 @@
 using PKG;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class GameState : StateMachine<GameState.State>
 {
@@ -29,6 +30,13 @@ public class GameState : StateMachine<GameState.State>
 
 	public bool IsPlaying { get { return _currentState == State.InGame; } }
 	public bool IsAtStartScreen { get { return _currentState == State.GameStart; } }
+
+	[Header("Sequence Directors")]
+	public PlayableDirector GameStartDirector;
+	public PlayableDirector SuddenDeathDirector;
+	public PlayableDirector WinnerDirector;
+
+	const float ShipDelay = 2f;
 
 	private void Awake()
 	{
@@ -72,7 +80,11 @@ public class GameState : StateMachine<GameState.State>
 					var winner = RatPlayer.FindCurrentWinner();
 					Winner = winner;
 					if (winner != null)
+					{
 						SetState(State.VictoryScreen);
+					}
+					else
+						SuddenDeathDirector.gameObject.SetActive(true);
 				}
 				break;
 			case State.VictoryScreen:
@@ -80,6 +92,13 @@ public class GameState : StateMachine<GameState.State>
 			default:
 				break;
 		}
+	}
+
+	IEnumerator StartDirectorRoutine() {
+		yield return new WaitForSeconds(RatShipRespawner.AnimationLength + ShipDelay);
+		this.GameStartDirector.gameObject.SetActive(true);
+		yield return new WaitForSeconds(2f);
+		this.GameStartDirector.gameObject.SetActive(false);
 	}
 
 	IEnumerator VictoryScreenDelay()
@@ -100,8 +119,10 @@ public class GameState : StateMachine<GameState.State>
 				{
 					player.EndGame();
 				}
+				SuddenDeathDirector.gameObject.SetActive(false);
 				break;
 			case State.VictoryScreen:
+				WinnerDirector.gameObject.SetActive(false);
 				break;
 			default:
 				break;
@@ -125,14 +146,16 @@ public class GameState : StateMachine<GameState.State>
 				break;
 			case State.InGame:
 				GameTimer = _gameDuration;
-				RatPlayer.SetupPlayersForPlay(2f);
+				RatPlayer.SetupPlayersForPlay(ShipDelay);
 				foreach (var go in GameObject.FindGameObjectsWithTag("Item"))
 				{
 					PoolManager.ReleaseObject(go);
 				}
+				StartCoroutine(StartDirectorRoutine());
 				break;
 			case State.VictoryScreen:
 				StartCoroutine(VictoryScreenDelay());
+				WinnerDirector.gameObject.SetActive(true);
 				break;
 			default:
 				break;

@@ -7,7 +7,7 @@ public class RatShipRespawner : MonoBehaviour
 {
 	RatPlayer _myRatPlayer;
 
-	const float AnimationLength = 1.5f;
+	public const float AnimationLength = 1.5f;
 
 	public void Respawn(RatPlayer rp, float delay = 0f)
 	{
