@@ -27,11 +27,22 @@ public class Star : MonoBehaviour
 	{
 		AudioManager.Instance.PlaySound(soundWhenHittingSomething, transform.position);
 
-		GetComponentInChildren<SpriteRenderer>().enabled = false;
+
+        if (collision.collider.CompareTag("Player"))
+        {
+            collision.collider.GetComponent<RatPlayer>().Kill();
+        }
+        else
+        {
+            if (itemToSpawn != null)
+                Instantiate(itemToSpawn, transform.position, Quaternion.identity);
+        }
+
+
+        GetComponentInChildren<SpriteRenderer>().enabled = false;
 		GetComponent<ParticleSystem>().Stop();
 		GetComponent<TrailRenderer>().enabled = false;
-		if (itemToSpawn != null)
-			Instantiate(itemToSpawn, transform.position, Quaternion.identity);
+
 		if (explosion != null)
 		{
 			var explosionInstance = Instantiate(explosion, transform.position, Quaternion.identity);
