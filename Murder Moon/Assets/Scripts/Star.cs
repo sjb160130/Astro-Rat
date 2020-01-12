@@ -7,6 +7,8 @@ public class Star : MonoBehaviour
     [HideInInspector]
     public GameObject itemToSpawn;
 
+    public GameObject explosion;
+
     public AudioClip soundWhenHittingSomething;
 
     // Start is called before the first frame update
@@ -29,6 +31,8 @@ public class Star : MonoBehaviour
         GetComponent<ParticleSystem>().Stop();
         GetComponent<TrailRenderer>().enabled = false;
         Instantiate(itemToSpawn, transform.position, Quaternion.identity);
+        var explosionInstance = Instantiate(explosion, transform.position, Quaternion.identity);
+        Destroy(explosionInstance, 0.5F);
     }
 
 }
