@@ -98,6 +98,7 @@ public class Projectile : Grabbable
 		{
 			this.LastYeeter.GetComponent<RatPlayer>().AwardPoint();
 			collision.collider.GetComponent<RatPlayer>().Kill();
+            Destroy(this.gameObject);
 		}
 
 		_killMode = false;
