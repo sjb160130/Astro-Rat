@@ -6,7 +6,7 @@ using PKG;
 using Random = UnityEngine.Random;
 
 [Serializable]
-public class SpawnPoints
+public class SpawnPoint
 {
     [SerializeField]
     public Vector3 SpawnHere;
@@ -21,13 +21,18 @@ public class SpawnManager : MonoBehaviour
     private PoolManager _pool;
 
     public List<GameObject> items;
-    public List<SpawnPoints> spawnPoints;
+    public List<SpawnPoint> spawnPoints;
 
     private bool hasStartedSpawningStars = false;
 
+	static public SpawnManager Instance { get; private set; }
 
+	private void Awake()
+	{
+		Instance = this;
+	}
 
-    void Start()
+	void Start()
     {
         _pool = GetComponent<PoolManager>();     
     }
@@ -43,8 +48,6 @@ public class SpawnManager : MonoBehaviour
 
     }
 
-
-
     private IEnumerator SpawnStarsWhileGameIsRunning(float waitTime)
     {
         yield return new WaitForSeconds(0.1F);
@@ -56,6 +59,8 @@ public class SpawnManager : MonoBehaviour
         while (GameState.Instance.IsPlaying)
         {
             yield return new WaitForSeconds(waitTime);
+			if (GameObject.FindGameObjectsWithTag("Item").Length >= PlayerManager.Instance.PlayerCount)
+				continue;
             var star2 = SpawnStar();
             StartCoroutine(Release(star2));
         }
@@ -65,7 +70,7 @@ public class SpawnManager : MonoBehaviour
 
     private GameObject SpawnStar()
     {
-        SpawnPoints location = getRandomStarSpawnLocation();
+        SpawnPoint location = getRandomStarSpawnLocation();
         var star = _pool.spawnObject(starPrefab, location.SpawnHere, Quaternion.identity);
         star.GetComponentInChildren<SpriteRenderer>().enabled = true;
         star.GetComponent<TrailRenderer>().enabled = true;
@@ -94,7 +99,7 @@ public class SpawnManager : MonoBehaviour
         return items[index];
     }
 
-    private SpawnPoints getRandomStarSpawnLocation()
+    private SpawnPoint getRandomStarSpawnLocation()
     {
         var index = Random.Range(0, spawnPoints.Count);
         index = index < 0 ? 0 : index;
@@ -117,7 +122,7 @@ public class SpawnManager : MonoBehaviour
     //}
 
     int lastPlayerSpawnIndex = 1;
-    private SpawnPoints getRandomPlayerSpawnLocation()
+    public SpawnPoint getRandomPlayerSpawnLocation()
     {
         int spawnPlayerHereIndex = lastPlayerSpawnIndex;
 

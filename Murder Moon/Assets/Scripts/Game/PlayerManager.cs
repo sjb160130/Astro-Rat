@@ -23,6 +23,8 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	Dictionary<int, PlayerData> _players = new Dictionary<int, PlayerData>();
 
+	public int PlayerCount { get { return _players.Count; } }
+
 	public bool IsAllReady()
 	{
 		if (_players.Count <= 0)

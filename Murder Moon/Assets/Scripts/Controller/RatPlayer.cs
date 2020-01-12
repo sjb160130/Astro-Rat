@@ -1,7 +1,9 @@
-﻿using System;
+﻿using PKG;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class RatPlayer : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class RatPlayer : MonoBehaviour
 	public int Score { get; private set; }
 	public bool IsPlaying { get { return PlayerManager.Instance.IsPlaying(_playerID); } }
 
+	public GameObject MyShip;
+
 	public static RatPlayer FindCurrentWinner()
 	{
 		RatPlayer winner = null;
@@ -22,6 +26,8 @@ public class RatPlayer : MonoBehaviour
 		bool tie = false;
 		foreach (RatPlayer player in _players)
 		{
+			if (PlayerManager.Instance.IsPlaying(player.PlayerID) == false)
+				continue;
 			if (player.Score > highestScore)
 			{
 				tie = false;
@@ -36,6 +42,24 @@ public class RatPlayer : MonoBehaviour
 		return winner;
 	}
 
+	public static void SetupPlayersForPlay(float delay = 0f)
+	{
+		foreach (RatPlayer rp in _players)
+		{
+			rp.gameObject.SetActive(false);
+			if (PlayerManager.Instance.IsPlaying(rp.PlayerID))
+			{
+				//setup
+				rp.ResetPlayer();
+				GameObject ship = PoolManager.SpawnObject(rp.MyShip);
+				ship.GetCreateComponent<RatShipRespawner>().Respawn(rp, delay);
+			}
+			else
+			{
+			}
+		}
+	}
+
 	private void Awake()
 	{
 		_players.Add(this);
@@ -46,7 +70,7 @@ public class RatPlayer : MonoBehaviour
 		_players.Remove(this);
 	}
 
-	private void ResetPlayer()
+	public void ResetPlayer()
 	{
 		ResetDeath();
 		Score = 0;
@@ -61,11 +85,14 @@ public class RatPlayer : MonoBehaviour
 		Debug.Log("Player " + this.PlayerID + " killed");
 
 		StartCoroutine(HandleDeathAndRespawn());
+		this.gameObject.layer = LayerMask.NameToLayer("Player Dead");
 	}
 
 	public void ResetDeath()
 	{
 		Dead = false;
+		this.gameObject.layer = LayerMask.NameToLayer("Player");
+		this.gameObject.SetActive(true);
 	}
 
 	IEnumerator HandleDeathAndRespawn()
@@ -87,13 +114,14 @@ public class RatPlayer : MonoBehaviour
 
 	IEnumerator Spawn()
 	{
-		SpawnPoint sp = SpawnPoint.GetSpawnPoint(_playerID, false);
-		if (sp == null)
-		{
-			ResetDeath();
-			yield break;
-		}
-		this.transform.position = sp.Point;
+		//SpawnPoint sp = SpawnPoint.GetSpawnPoint(_playerID, false);
+		//if (sp == null)
+		//{
+		//	ResetDeath();
+		//	yield break;
+		//}
+		//this.transform.position = sp.Point;
+		ResetDeath();
 		const float InvicibilityDuration = 1f;
 		yield return new WaitForSeconds(InvicibilityDuration);
 		ResetDeath();

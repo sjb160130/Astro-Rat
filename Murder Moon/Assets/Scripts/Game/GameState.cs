@@ -124,6 +124,7 @@ public class GameState : StateMachine<GameState.State>
 				break;
 			case State.InGame:
 				GameTimer = _gameDuration;
+				RatPlayer.SetupPlayersForPlay(2f);
 				break;
 			case State.VictoryScreen:
 				StartCoroutine(VictoryScreenDelay());
