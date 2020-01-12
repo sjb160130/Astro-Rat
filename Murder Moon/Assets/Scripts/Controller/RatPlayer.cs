@@ -114,17 +114,12 @@ public class RatPlayer : MonoBehaviour
 
 	IEnumerator Spawn()
 	{
-		//SpawnPoint sp = SpawnPoint.GetSpawnPoint(_playerID, false);
-		//if (sp == null)
-		//{
-		//	ResetDeath();
-		//	yield break;
-		//}
-		//this.transform.position = sp.Point;
-		ResetDeath();
-		const float InvicibilityDuration = 1f;
-		yield return new WaitForSeconds(InvicibilityDuration);
-		ResetDeath();
+		RatShipRespawner.Spawn(this, 0f);
+		yield return null;
+		//ResetDeath();
+		//const float InvicibilityDuration = 1f;
+		//yield return new WaitForSeconds(InvicibilityDuration);
+		//ResetDeath();
 	}
 
 

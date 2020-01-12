@@ -21,6 +21,7 @@ public class Grabbable : MonoBehaviour
 	{
 		_originalScale = this.transform.localScale;
 		_kinematic = this.MyRigidbody.isKinematic;
+		MyCollider = MyCollider ?? GetComponent<Collider2D>();
 	}
 
 	public void Grab(Yeeter yeeter)

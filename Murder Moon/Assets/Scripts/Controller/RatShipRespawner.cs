@@ -23,6 +23,12 @@ public class RatShipRespawner : MonoBehaviour
 		StartCoroutine(RespawnRoutine(delay));
 	}
 
+	public static void Spawn(RatPlayer rp, float delay = 0f)
+	{
+		GameObject ship = PoolManager.SpawnObject(rp.MyShip);
+		ship.GetCreateComponent<RatShipRespawner>().Respawn(rp, delay);
+	}
+
 	IEnumerator RespawnRoutine(float delay)
 	{
 		Vector3 scale = this.transform.localScale;
@@ -33,11 +39,11 @@ public class RatShipRespawner : MonoBehaviour
 		Vector3 dir = dropPoint - sp.SpawnHere;
 		Quaternion startRot = Quaternion.LookRotation(Vector3.forward, dir);
 
-		this.transform.position = _myRatPlayer.transform.position = sp.SpawnHere;
+		this.transform.position = sp.SpawnHere;
 
 		yield return new WaitForSeconds(delay);
 
-		this.transform.position = _myRatPlayer.transform.position = sp.SpawnHere;
+		this.transform.position = sp.SpawnHere;
 		this.transform.rotation = startRot;
 		this.transform.DOMove(dropPoint, AnimationLength);
 		this.transform.DOScale(scale, AnimationLength).SetEase(Ease.OutElastic);

@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using PKG;
 using System.Collections;
 using UnityEngine;
 
@@ -125,6 +126,10 @@ public class GameState : StateMachine<GameState.State>
 			case State.InGame:
 				GameTimer = _gameDuration;
 				RatPlayer.SetupPlayersForPlay(2f);
+				foreach (var go in GameObject.FindGameObjectsWithTag("Item"))
+				{
+					PoolManager.ReleaseObject(go);
+				}
 				break;
 			case State.VictoryScreen:
 				StartCoroutine(VictoryScreenDelay());
