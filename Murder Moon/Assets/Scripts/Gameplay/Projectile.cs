@@ -98,6 +98,8 @@ public class Projectile : Grabbable
 		{
 			this.LastYeeter.GetComponent<RatPlayer>().AwardPoint();
 			collision.collider.GetComponent<RatPlayer>().Kill();
+			Cinemachine.CinemachineImpulseSource impulse = GetComponent<Cinemachine.CinemachineImpulseSource>();
+			impulse?.GenerateImpulse(this.MyRigidbody.velocity);
             Destroy(this.gameObject);
 		}
 
