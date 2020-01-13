@@ -18,6 +18,9 @@ public class DisplayPlayerTapIn : MonoBehaviour
 	public float NoiseMagnitudeY = 1f;
 	public float NoiseSpeedY = 1f;
 
+	public AudioClip TapInSFX;
+	public AudioClip TapOutSFX;
+
 	float _speed01 = 1f;
 
 	Vector3 _targetPosition;
@@ -31,6 +34,7 @@ public class DisplayPlayerTapIn : MonoBehaviour
 	}
 
 	bool _isIn;
+	bool _isReady;
 
 	private void Update()
 	{
@@ -39,17 +43,34 @@ public class DisplayPlayerTapIn : MonoBehaviour
 		{
 			_targetPosition = shouldBeIn ? _inPosition : OutPosition.position;
 			_isIn = shouldBeIn;
+
+			if (_isIn)
+				AudioManager.Instance.PlaySound(this.TapInSFX, this.transform.position, AudioManager.MixerGroup.Title);
+			else
+				AudioManager.Instance.PlaySound(this.TapOutSFX, this.transform.position, AudioManager.MixerGroup.Title);
+
 		}
 
-		if (PlayerManager.Instance.IsReady(this.PlayerID))
+
+		var newIsReady = PlayerManager.Instance.IsReady(this.PlayerID);
+
+		if (newIsReady)
 		{
 			//TODO: optimize state hashing as a cached int value
 			this.Animator?.Play("Ready");
+
+			if (_isReady == false)
+				AudioManager.Instance.PlaySound(this.TapInSFX, this.transform.position, AudioManager.MixerGroup.Title);
 		}
 		else
 		{
 			this.Animator?.Play("Not Ready");
+
+			if (_isReady == true)
+				AudioManager.Instance.PlaySound(this.TapOutSFX, this.transform.position, AudioManager.MixerGroup.Title);
 		}
+
+		_isReady = newIsReady;
 
 		float noiseX = Mathf.PerlinNoise(this.transform.position.x, this.transform.position.y + (Time.time * NoiseSpeedX)) * this.NoiseMagnitudeX;
 		float noiseY = Mathf.PerlinNoise(this.transform.position.x + (Time.time * NoiseSpeedY), this.transform.position.y) * this.NoiseMagnitudeY;

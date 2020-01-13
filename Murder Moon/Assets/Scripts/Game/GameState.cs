@@ -143,12 +143,14 @@ public class GameState : StateMachine<GameState.State>
 		switch (nextState)
 		{
 			case State.GameStart:
+				AudioManager.Instance.Mixer.FindSnapshot("Title").TransitionTo(0.2f);
 				PlayerManager.Instance.Reset();
 				PlayerManager.Instance.Locked = false;
 				RatPlayer.ResetAllPlayers();
 				AudioManager.Instance.PlaySong(AudioManager.Song.Main);
 				break;
 			case State.InGame:
+				AudioManager.Instance.Mixer.FindSnapshot("Gameplay").TransitionTo(1f);
 				GameTimer = _gameDuration;
 				RatPlayer.SetupPlayersForPlay(ShipDelay);
 				foreach (var go in GameObject.FindGameObjectsWithTag("Item"))
@@ -158,6 +160,7 @@ public class GameState : StateMachine<GameState.State>
 				StartCoroutine(StartDirectorRoutine());
 				break;
 			case State.VictoryScreen:
+				AudioManager.Instance.Mixer.FindSnapshot("Title").TransitionTo(0.2f);
 				StartCoroutine(VictoryScreenDelay());
 				WinnerDirector.gameObject.SetActive(true);
 				AudioManager.Instance.PlaySong(AudioManager.Song.Nothing);

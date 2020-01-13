@@ -19,6 +19,7 @@ public class AudioManager : MonoBehaviour
 	public AudioMixer Mixer;
 	public AudioMixerGroup MixerGroupSFX;
 	public AudioMixerGroup MixerGroupMusic;
+	public AudioMixerGroup MixerGroupTitleSFX;
 
 	GameObject _prefab;
 
@@ -36,14 +37,14 @@ public class AudioManager : MonoBehaviour
 		_prefab = BuildAudioSource().gameObject;
 	}
 
-	public void PlaySound(AudioClip sound, Vector3 position)
+	public AudioSource PlaySound(AudioClip sound, Vector3 position, MixerGroup mixerGroup = MixerGroup.SFX)
 	{
 		if (_pool == null)
 		{
 			Debug.LogError("No pool set!");
 		}
 
-		StartCoroutine(SpawnSound(sound, position));
+		return (SpawnSound(sound, position, group: mixerGroup));
 	}
 
 	AudioSource BuildAudioSource(MixerGroup group = MixerGroup.SFX, bool loop = false)
@@ -54,23 +55,13 @@ public class AudioManager : MonoBehaviour
 		source.playOnAwake = false;
 		source.spatialBlend = 0f;
 		source.Stop();
-		switch (group)
-		{
-			case MixerGroup.SFX:
-				source.outputAudioMixerGroup = MixerGroupSFX;
-				break;
-			case MixerGroup.Music:
-				source.outputAudioMixerGroup = MixerGroupMusic;
-				break;
-			default:
-				break;
-		}
+		SetMixerGroup(source, group);
 		source.loop = loop;
 		return source;
 	}
 
 	public enum Song { Nothing, Main, Battle }
-	public enum MixerGroup { SFX, Music }
+	public enum MixerGroup { SFX, Music, Title }
 
 	public void PlaySong(Song song)
 	{
@@ -90,19 +81,43 @@ public class AudioManager : MonoBehaviour
 			source.Stop();
 	}
 
-	private IEnumerator SpawnSound(AudioClip sound, Vector3 position, bool is3D = false)
+	private AudioSource SpawnSound(AudioClip sound, Vector3 position, bool is3D = false, MixerGroup group = MixerGroup.SFX)
 	{
 		var soundInstance = _pool.spawnObject(
 			_prefab,
 			position,
-			Quaternion.identity).GetComponent<AudioSource>();
+			Quaternion.identity).GetCreateComponent<AudioSource>();
 		soundInstance.transform.SetParent(_container.transform);
 		soundInstance.spatialBlend = is3D ? 1f : 0f;
 		soundInstance.clip = sound;
-		soundInstance.outputAudioMixerGroup = MixerGroupSFX;
+		SetMixerGroup(soundInstance, group);
 		soundInstance.Play();
 
-		yield return new WaitForSeconds(sound.length);
-		PoolManager.ReleaseObject(soundInstance.gameObject);
+		StartCoroutine(SpawnSoundRoutine(soundInstance));
+
+		return soundInstance;
+	}
+
+	void SetMixerGroup(AudioSource source, MixerGroup group) {
+		switch (group)
+		{
+			case MixerGroup.SFX:
+				source.outputAudioMixerGroup = MixerGroupSFX;
+				break;
+			case MixerGroup.Music:
+				source.outputAudioMixerGroup = MixerGroupMusic;
+				break;
+			case MixerGroup.Title:
+				source.outputAudioMixerGroup = MixerGroupTitleSFX;
+				break;
+			default:
+				break;
+		}
+	}
+
+	private IEnumerator SpawnSoundRoutine(AudioSource source)
+	{
+		yield return new WaitForSeconds(source.clip.length);
+		PoolManager.ReleaseObject(source.gameObject);
 	}
 }

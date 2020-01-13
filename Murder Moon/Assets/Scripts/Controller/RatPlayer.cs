@@ -19,6 +19,8 @@ public class RatPlayer : MonoBehaviour
 
 	public GameObject MyShip;
 
+	public RatSounds Sounds;
+
 	public static RatPlayer FindCurrentWinner()
 	{
 		RatPlayer winner = null;
@@ -90,6 +92,8 @@ public class RatPlayer : MonoBehaviour
 
 		StartCoroutine(HandleDeathAndRespawn());
 		this.gameObject.layer = LayerMask.NameToLayer("Player Dead");
+
+		AudioManager.Instance.PlaySound(this.Sounds.Die, this.transform.position);
 	}
 
 	public void ResetDeath()

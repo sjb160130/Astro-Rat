@@ -18,6 +18,8 @@ public class Projectile : Grabbable
 
 	public bool Kills = true;
 
+	public AudioClip HitSFX;
+
 	void UpdateDrag()
 	{
 		if (_killMode)
@@ -100,6 +102,7 @@ public class Projectile : Grabbable
 			collision.collider.GetComponent<RatPlayer>().Kill();
 			Cinemachine.CinemachineImpulseSource impulse = GetComponent<Cinemachine.CinemachineImpulseSource>();
 			impulse?.GenerateImpulse(this.MyRigidbody.velocity);
+			AudioManager.Instance.PlaySound(HitSFX, this.transform.position);
             Destroy(this.gameObject);
 		}
 

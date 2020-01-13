@@ -29,6 +29,15 @@ public class RatShipRespawner : MonoBehaviour
 		ship.GetCreateComponent<RatShipRespawner>().Respawn(rp, delay);
 	}
 
+	bool isPlaying = false;
+
+	IEnumerator DontPlaySFXOverEachotherFlag(float duration)
+	{
+		isPlaying = true;
+		yield return new WaitForSeconds(duration);
+		isPlaying = false;
+	}
+
 	IEnumerator RespawnRoutine(float delay)
 	{
 		Vector3 scale = this.transform.localScale;
@@ -47,7 +56,14 @@ public class RatShipRespawner : MonoBehaviour
 		this.transform.rotation = startRot;
 		this.transform.DOMove(dropPoint, AnimationLength);
 		this.transform.DOScale(scale, AnimationLength).SetEase(Ease.OutElastic);
-		yield return new WaitForSeconds(AnimationLength);
+
+		float clipOffset = this._myRatPlayer.Sounds.Spawn.length / 2f;
+		yield return new WaitForSeconds(AnimationLength - clipOffset);
+		if (isPlaying == false) {
+			AudioManager.Instance.PlaySound(this._myRatPlayer.Sounds.Spawn, dropPoint);
+			StartCoroutine(DontPlaySFXOverEachotherFlag(clipOffset));
+		}
+		yield return new WaitForSeconds(clipOffset);
 
 		_myRatPlayer.transform.position = dropPoint;
 		_myRatPlayer.gameObject.SetActive(true);

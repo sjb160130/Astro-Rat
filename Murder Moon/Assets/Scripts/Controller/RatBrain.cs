@@ -15,9 +15,11 @@ public class RatBrain : MonoBehaviour
 
 	public bool FacingRight { get; private set; }
 
-    public SpriteRenderer crownSprite;
+	public SpriteRenderer crownSprite;
 
-    [HideInInspector]
+	public RatSounds Sounds { get { return this._ratPlayer.Sounds; } }
+
+	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
 
 	private RatController _controller;
@@ -59,8 +61,8 @@ public class RatBrain : MonoBehaviour
 		_controller.onTriggerEnterEvent += OnTriggerEnterEvent;
 		_controller.onTriggerExitEvent += OnTriggerExitEvent;
 
-        crownSprite.enabled = false;
-    }
+		crownSprite.enabled = false;
+	}
 
 	void SetFlipDirection(float direction)
 	{
@@ -161,6 +163,8 @@ public class RatBrain : MonoBehaviour
 
 		float gravity = 0f;
 
+		bool wasGrounded = this._controller.IsGrounded;
+
 		// we can only jump whilst grounded
 		if (_controller.IsGrounded && player.GetButtonDown("Jump") && canJump)
 		{
@@ -168,6 +172,7 @@ public class RatBrain : MonoBehaviour
 			_animator.Play(Animator.StringToHash("Jump"));
 			_isHoldingJump = true;
 			gravity = 0f;
+			AudioManager.Instance.PlaySound(this.Sounds.Jump, this.transform.position);
 		}
 		else if (_velocity.y <= 0f)
 		{
@@ -196,14 +201,18 @@ public class RatBrain : MonoBehaviour
 		FixNaN();
 		_controller.Move(_velocity * Time.deltaTime);
 
+		//check if landed
+		if (!wasGrounded && _controller.IsGrounded)
+			AudioManager.Instance.PlaySound(this.Sounds.Land, this.transform.position);
+
 		// grab our current _velocity to use as a base for all calculations
 		_velocity = this.transform.InverseTransformDirection(_controller.Velocity);
 	}
 
-    public void SetCrownWinner(bool flag)
-    {
-        crownSprite.enabled = flag;
-    }
+	public void SetCrownWinner(bool flag)
+	{
+		crownSprite.enabled = flag;
+	}
 
 	void onControllerCollider(RaycastHit2D hit)
 	{
