@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PKG;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,18 +11,6 @@ public class Star : MonoBehaviour
 	public GameObject explosion;
 
 	public AudioClip soundWhenHittingSomething;
-
-	// Start is called before the first frame update
-	void Start()
-	{
-
-	}
-
-	// Update is called once per frame
-	void Update()
-	{
-
-	}
 
 	public void OnCollisionEnter2D(Collision2D collision)
 	{
@@ -48,6 +37,8 @@ public class Star : MonoBehaviour
 			var explosionInstance = Instantiate(explosion, transform.position, Quaternion.identity);
 			Destroy(explosionInstance, 0.5F);
 		}
+
+		PoolManager.ReleaseObject(this.gameObject);
 	}
 
 }
