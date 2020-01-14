@@ -166,7 +166,11 @@ public class RatBrain : MonoBehaviour
 		bool wasGrounded = this._controller.IsGrounded;
 
 		// we can only jump whilst grounded
-		if (_controller.IsGrounded && player.GetButtonDown("Jump") && canJump)
+		if (this._ratPlayer.Dead)
+		{
+			gravity = gravityAfterButtonRelease;
+		}
+		else if (_controller.IsGrounded && player.GetButtonDown("Jump") && canJump)
 		{
 			_velocity.y = Mathf.Sqrt(2f * jumpHeight * -this.jumpGravity);
 			_animator.Play(Animator.StringToHash("Jump"));

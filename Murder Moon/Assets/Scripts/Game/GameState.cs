@@ -31,6 +31,8 @@ public class GameState : StateMachine<GameState.State>
 	public bool IsPlaying { get { return _currentState == State.InGame; } }
 	public bool IsAtStartScreen { get { return _currentState == State.GameStart; } }
 
+	bool _timerRunning = false;
+
 	[Header("Sequence Directors")]
 	public PlayableDirector GameStartDirector;
 	public PlayableDirector SuddenDeathDirector;
@@ -74,7 +76,8 @@ public class GameState : StateMachine<GameState.State>
 				}
 				break;
 			case State.InGame:
-				GameTimer -= Time.deltaTime;
+				if (_timerRunning)
+					GameTimer -= Time.deltaTime;
 				if (GameTimer <= 0f)
 				{
 					var winner = RatPlayer.FindCurrentWinner();
@@ -100,8 +103,15 @@ public class GameState : StateMachine<GameState.State>
 		yield return new WaitForSeconds(RatShipRespawner.AnimationLength + ShipDelay);
 		this.GameStartDirector.gameObject.SetActive(true);
 		AudioManager.Instance.PlaySong(AudioManager.Song.Battle);
+		StartTimerAndStarSpawning();
 		yield return new WaitForSeconds(2f);
 		this.GameStartDirector.gameObject.SetActive(false);
+	}
+
+	void StartTimerAndStarSpawning()
+	{
+		_timerRunning = true;
+		SpawnManager.Instance.SpawningActive = true;
 	}
 
 	IEnumerator VictoryScreenDelay()
@@ -123,6 +133,7 @@ public class GameState : StateMachine<GameState.State>
 					player.EndGame();
 				}
 				SuddenDeathDirector.gameObject.SetActive(false);
+				SpawnManager.Instance.SpawningActive = false;
 				break;
 			case State.VictoryScreen:
 				WinnerDirector.gameObject.SetActive(false);
@@ -152,12 +163,14 @@ public class GameState : StateMachine<GameState.State>
 			case State.InGame:
 				AudioManager.Instance.Mixer.FindSnapshot("Gameplay").TransitionTo(1f);
 				GameTimer = _gameDuration;
+				_timerRunning = false;
 				RatPlayer.SetupPlayersForPlay(ShipDelay);
 				foreach (var go in GameObject.FindGameObjectsWithTag("Item"))
 				{
 					PoolManager.ReleaseObject(go);
 				}
 				StartCoroutine(StartDirectorRoutine());
+				SpawnManager.Instance.SpawningActive = false;
 				break;
 			case State.VictoryScreen:
 				AudioManager.Instance.Mixer.FindSnapshot("Title").TransitionTo(0.2f);
