@@ -37,14 +37,17 @@ public class AudioManager : MonoBehaviour
 		_prefab = BuildAudioSource().gameObject;
 	}
 
-	public AudioSource PlaySound(AudioClip sound, Vector3 position, MixerGroup mixerGroup = MixerGroup.SFX)
+	public AudioSource PlaySound(AudioClip sound, Vector3 position, MixerGroup mixerGroup = MixerGroup.SFX, float volume = 0.95f)
 	{
 		if (_pool == null)
 		{
 			Debug.LogError("No pool set!");
 		}
 
-		return (SpawnSound(sound, position, group: mixerGroup));
+		var source = SpawnSound(sound, position, group: mixerGroup);
+		source.volume = volume;
+
+		return source;
 	}
 
 	AudioSource BuildAudioSource(MixerGroup group = MixerGroup.SFX, bool loop = false)

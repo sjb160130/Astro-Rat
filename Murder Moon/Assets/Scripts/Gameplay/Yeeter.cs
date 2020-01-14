@@ -188,14 +188,14 @@ public class Yeeter : StateMachine<Yeeter.State>
 				_windup01 = 0f;
 				LineRenderer.enabled = true;
 				this.CurrentDirection = _brain.FacingRight ? Direction.Right : Direction.Left;
-				_yeetSound = AudioManager.Instance.PlaySound(this._brain.Sounds.ChargeYeet, this.transform.position);
+				_yeetSound = AudioManager.Instance.PlaySound(this._brain.Sounds.ChargeYeet, this.transform.position, volume: 1f);
 				break;
 			case State.Holding:
-				AudioManager.Instance.PlaySound(this._brain.Sounds.Grab, this.transform.position);
+				AudioManager.Instance.PlaySound(this._brain.Sounds.Grab, this.transform.position, volume: 1f);
 				break;
 			case State.Yeeting:
 				_yeetSound.Stop();
-				AudioManager.Instance.PlaySound(this._brain.Sounds.Yeet, this.transform.position);
+				AudioManager.Instance.PlaySound(this._brain.Sounds.Yeet, this.transform.position, volume: 1f);
 				_yeet01 = 0f;
 				break;
 			default:

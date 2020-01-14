@@ -30,7 +30,7 @@ public class Planet : MonoBehaviour
 	public static Vector2 GetClosestPointOnPlanet(Collider2D collider, float offset = 0f)
 	{
 		ValidateCollider(ref collider);
-		//bool wasOn = collider.enabled;
+		bool wasOn = collider.enabled;
 		collider.enabled = true;
 		var planets = GameObject.FindGameObjectsWithTag("Planet");
 		float closestDistance = float.MaxValue;
@@ -48,7 +48,7 @@ public class Planet : MonoBehaviour
 				closestCollisionData = colliderDist;
 			}
 		}
-		//collider.enabled = wasOn;
+		collider.enabled = wasOn;
 
 
 		if (offset == 0f)

@@ -172,7 +172,7 @@ public class RatBrain : MonoBehaviour
 			_animator.Play(Animator.StringToHash("Jump"));
 			_isHoldingJump = true;
 			gravity = 0f;
-			AudioManager.Instance.PlaySound(this.Sounds.Jump, this.transform.position);
+			AudioManager.Instance.PlaySound(this.Sounds.Jump, this.transform.position, volume: 0.8f);
 		}
 		else if (_velocity.y <= 0f)
 		{

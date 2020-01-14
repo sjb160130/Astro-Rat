@@ -93,7 +93,7 @@ public class RatPlayer : MonoBehaviour
 		StartCoroutine(HandleDeathAndRespawn());
 		this.gameObject.layer = LayerMask.NameToLayer("Player Dead");
 
-		AudioManager.Instance.PlaySound(this.Sounds.Die, this.transform.position);
+		AudioManager.Instance.PlaySound(this.Sounds.Die, this.transform.position, volume: 1f);
 	}
 
 	public void ResetDeath()
