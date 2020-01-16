@@ -11,7 +11,8 @@ public class GameState : StateMachine<GameState.State>
 		None,
 		GameStart,
 		InGame,
-		VictoryScreen
+		VictoryScreen,
+		SetupMultiMonitor
 	}
 
 	//singleton
@@ -20,7 +21,7 @@ public class GameState : StateMachine<GameState.State>
 	const float StartDelayDuration = 3f;
 	static float StartDelay = StartDelayDuration;
 
-	public GameView StartView, GameplayView, WinnerView;
+	public GameView StartView, GameplayView, WinnerView, MonitorView;
 
 	public static RatPlayer Winner { get; private set; }
 
@@ -30,6 +31,7 @@ public class GameState : StateMachine<GameState.State>
 
 	public bool IsPlaying { get { return _currentState == State.InGame; } }
 	public bool IsAtStartScreen { get { return _currentState == State.GameStart; } }
+	public State CurrentGameState { get { return _currentState; } }
 
 	bool _timerRunning = false;
 
@@ -74,6 +76,9 @@ public class GameState : StateMachine<GameState.State>
 					//if not readied, reset timer
 					StartDelay = StartDelayDuration;
 				}
+
+				if (Input.GetKeyDown(KeyCode.Escape))
+					SetState(State.SetupMultiMonitor);
 				break;
 			case State.InGame:
 				if (_timerRunning)
@@ -92,9 +97,25 @@ public class GameState : StateMachine<GameState.State>
 				break;
 			case State.VictoryScreen:
 				break;
+			case State.SetupMultiMonitor:
+				if (GetAnyDown("Leave Game"))
+				{
+					SetState(State.GameStart);
+				}
+				break;
 			default:
 				break;
 		}
+	}
+
+	bool GetAnyDown(string action)
+	{
+		foreach (var p in Rewired.ReInput.players.Players)
+		{
+			if (p.GetButtonDown(action))
+				return true;
+		}
+		return false;
 	}
 
 	IEnumerator StartDirectorRoutine()
@@ -150,6 +171,7 @@ public class GameState : StateMachine<GameState.State>
 		StartView?.Toggle(nextState == State.GameStart);
 		GameplayView?.Toggle(nextState == State.InGame);
 		WinnerView?.Toggle(nextState == State.VictoryScreen);
+		MonitorView?.Toggle(nextState == State.SetupMultiMonitor);
 
 		switch (nextState)
 		{

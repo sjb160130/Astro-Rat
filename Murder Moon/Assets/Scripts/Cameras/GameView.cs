@@ -8,6 +8,8 @@ public class GameView : MonoBehaviour
 	[SerializeField]
 	protected CanvasGroup UI;
 
+	protected bool _isOn { get; private set; }
+
 	private void OnValidate()
 	{
 		UI = UI ?? GetComponentInChildren<CanvasGroup>();
@@ -16,6 +18,7 @@ public class GameView : MonoBehaviour
 
 	public void Toggle(bool val)
 	{
+		_isOn = val;
 		if (val)
 			TurnOn();
 		else
