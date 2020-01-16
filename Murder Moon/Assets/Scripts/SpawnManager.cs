@@ -83,7 +83,8 @@ public class SpawnManager : MonoBehaviour
 	private IEnumerator Release(GameObject star)
 	{
 		yield return new WaitForSeconds(4.0F);
-		_pool.releaseObject(star);
+		if (star != null)
+			_pool.releaseObject(star);
 	}
 
 	private GameObject ReturnItem()

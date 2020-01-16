@@ -193,6 +193,7 @@ public class GameState : StateMachine<GameState.State>
 				}
 				StartCoroutine(StartDirectorRoutine());
 				SpawnManager.Instance.SpawningActive = false;
+				LevelGenerator.Instance.Run();
 				break;
 			case State.VictoryScreen:
 				AudioManager.Instance.Mixer.FindSnapshot("Title").TransitionTo(0.2f);

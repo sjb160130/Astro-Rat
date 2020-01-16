@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MonitorManager : GameView
 {
@@ -23,7 +24,9 @@ public class MonitorManager : GameView
 
 	List<CanvasGroup> _cgs = new List<CanvasGroup>();
 
-	int DisplayCount
+	public RectTransform MapBounds;
+
+	public int DisplayCount
 	{
 		get
 		{
@@ -82,9 +85,9 @@ public class MonitorManager : GameView
 	float GetAspect(int index)
 	{
 		var cam = Cameras[index].GetComponent<Camera>();
-		if (cam != null)
-			return cam.aspect;
-		return UnityEngine.Camera.main.aspect;
+		if (cam == null)
+			cam = UnityEngine.Camera.main;
+		return (float)cam.pixelWidth / (float)cam.pixelHeight;
 	}
 
 	float GetOrthoSize(int index)
@@ -93,6 +96,15 @@ public class MonitorManager : GameView
 		if (cam != null)
 			return cam.orthographicSize;
 		return UnityEngine.Camera.main.orthographicSize;
+	}
+
+	public Bounds GetBounds(int cameraIndex)
+	{
+		Vector3 pos = Cameras[cameraIndex].transform.position;
+		float aspect = GetAspect(cameraIndex);
+		float height = GetOrthoSize(cameraIndex) * 2f;
+		Bounds b = new Bounds(pos, new Vector3(height * aspect, height, 0f));
+		return b;
 	}
 
 	private void Update()
@@ -121,14 +133,19 @@ public class MonitorManager : GameView
 			for (int i = 0; i < DisplayCount; i++)
 			{
 				RectTransform rt = this.MonitorRects[i];
+				Image img = rt.GetComponentInChildren<Image>();
+				if (img != null)
+					img.color = new Color(1f, 1f, 1f, (_selectedScreen == i) ? 1f : 0.75f);
 				float aspect = GetAspect(i);
-				float orhtoSizeScaled = GetOrthoSize(i) * Scale;
+				float orhtoSizeScaled = GetOrthoSize(i) * Scale * 2f;
 				rt.sizeDelta = new Vector2(orhtoSizeScaled * aspect, orhtoSizeScaled);
 				//rt.GetWorldCorners(monitorCorners);
 				rt.position = new Vector3(
 					Mathf.Clamp(rt.transform.position.x, boundsCorners[BottomLeft].x, boundsCorners[TopRight].x),
 					Mathf.Clamp(rt.transform.position.y, boundsCorners[BottomLeft].y, boundsCorners[TopRight].y),
 					0f);
+				Vector3 anchoredPosition = rt.anchoredPosition;
+				this.Cameras[i].position = this.MapBounds.TransformPoint(anchoredPosition / Scale);
 			}
 		}
 
