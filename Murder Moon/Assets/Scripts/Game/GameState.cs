@@ -17,7 +17,7 @@ public class GameState : StateMachine<GameState.State>
 	//singleton
 	public static GameState Instance { get; private set; }
 
-	const float StartDelayDuration = 3f;
+	const float StartDelayDuration = 0.2f;
 	static float StartDelay = StartDelayDuration;
 
 	public GameView StartView, GameplayView, WinnerView;
