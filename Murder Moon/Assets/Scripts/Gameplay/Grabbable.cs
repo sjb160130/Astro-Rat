@@ -17,6 +17,8 @@ public class Grabbable : MonoBehaviour
 
 	const float HitOriginDelay = 8f / 30f; //8 frames at 30fps
 
+	public bool IsPlayer = false;
+
 	protected virtual void Awake()
 	{
 		_originalScale = this.transform.localScale;
@@ -44,9 +46,17 @@ public class Grabbable : MonoBehaviour
 
 	public void Release()
 	{
+		Quaternion prevRot = this.transform.rotation;
+		Vector3 prevPos = this.transform.position;
 		this.transform.SetParent(null);
 		this.transform.Reset();
 		this.transform.localScale = _originalScale;
+		if (IsPlayer)
+		{
+			this.transform.position = prevPos;
+			this.transform.rotation = prevRot;
+		}
+
 
 		IsHeld = false;
 
@@ -60,8 +70,23 @@ public class Grabbable : MonoBehaviour
 		OnReleaseCallback?.Invoke();
 	}
 
+	public void ReleaseAndSetKinematic()
+	{
+		Release();
+
+		IsHeld = false;
+
+		MyCollider.enabled = true;
+		MyRigidbody.isKinematic = true;
+		MyRigidbody.simulated = true;
+		MyRigidbody.velocity = Vector2.zero;
+		MyRigidbody.angularVelocity = 0f;
+	}
+
 	IEnumerator MakeInvulnerable()
 	{
+		if (this.LastYeeter == null)
+			yield break;
 		Collider2D[] originColliders = this.LastYeeter.GetComponentsInChildren<Collider2D>();
 		foreach (var collider in originColliders)
 		{

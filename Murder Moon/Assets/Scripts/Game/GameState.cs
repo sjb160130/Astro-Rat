@@ -17,7 +17,7 @@ public class GameState : StateMachine<GameState.State>
 	//singleton
 	public static GameState Instance { get; private set; }
 
-	const float StartDelayDuration = 0.2f;
+	const float StartDelayDuration = 1f;
 	static float StartDelay = StartDelayDuration;
 
 	public GameView StartView, GameplayView, WinnerView;
@@ -126,6 +126,7 @@ public class GameState : StateMachine<GameState.State>
 		{
 			case State.GameStart:
 				PlayerManager.Instance.Locked = true;
+				StartDelay = StartDelayDuration;
 				break;
 			case State.InGame:
 				foreach (var player in FindObjectsOfType<RatPlayer>())

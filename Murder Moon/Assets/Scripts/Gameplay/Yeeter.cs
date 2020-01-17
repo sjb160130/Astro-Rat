@@ -46,11 +46,13 @@ public class Yeeter : StateMachine<Yeeter.State>
 	public Direction CurrentDirection { get; private set; }
 
 	RatBrain _brain;
+	RatPlayer _ratPlayer;
 
 	private void Awake()
 	{
 		_brain = GetComponent<RatBrain>();
 		_playerID = GetComponent<RatPlayer>().PlayerID;
+		_ratPlayer = GetComponent<RatPlayer>();
 	}
 
 	private void OnDrawGizmosSelected()
@@ -64,6 +66,12 @@ public class Yeeter : StateMachine<Yeeter.State>
 		var p = _player;
 
 		UpdateLineRenderer();
+
+		if (_ratPlayer.Dead) {
+			if (this._heldItem != null)
+				Drop();
+			return;
+		}
 
 		switch (this._currentState)
 		{
@@ -148,7 +156,10 @@ public class Yeeter : StateMachine<Yeeter.State>
 			Vector3 direction = GetYeetDirection();
 			direction.Normalize();
 			//Debug.Log(_windup01);
-			this._heldItem.MyRigidbody.AddForce(direction * YeetStrength, ForceMode2D.Impulse);
+			Vector3 throwVel = direction * YeetStrength;
+			if (this._heldItem.IsPlayer)
+				throwVel *= this._heldItem.MyRigidbody.mass;
+			this._heldItem.MyRigidbody.AddForce(throwVel, ForceMode2D.Impulse);
 			float angle = Vector2.Angle(Vector2.right, direction);
 			this._heldItem.MyRigidbody.SetRotation(angle);
 			this._heldItem.MyRigidbody.transform.rotation = Quaternion.Euler(0, 0, angle);

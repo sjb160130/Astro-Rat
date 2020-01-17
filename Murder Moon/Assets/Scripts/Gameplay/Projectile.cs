@@ -66,7 +66,8 @@ public class Projectile : Grabbable
 	{
 	}
 
-	public void ResetKillmode() {
+	public void ResetKillmode()
+	{
 		_killMode = false;
 	}
 
@@ -93,17 +94,29 @@ public class Projectile : Grabbable
 		if (IsHeld == true)
 			return;
 
+		if (IsPlayer)
+		{
+			RatBrain brain = GetComponent<RatBrain>();
+			if (brain.IsYote == false)
+				return;
+		}
+
 		if (_killMode == true)
 			Debug.Log("killhit " + collision.collider.gameObject.name);
 
 		if (collision.collider.CompareTag("Player") && _killMode && Kills)
 		{
-			this.LastYeeter.GetComponent<RatPlayer>().AwardPoint();
-			collision.collider.GetComponent<RatPlayer>().Kill();
+			RatPlayer yeeter = this.LastYeeter.GetComponent<RatPlayer>();
+			RatPlayer hit = collision.collider.GetComponent<RatPlayer>();
+			hit.Kill();
+			if (hit != yeeter)
+				yeeter.AwardPoint();
 			Cinemachine.CinemachineImpulseSource impulse = GetComponent<Cinemachine.CinemachineImpulseSource>();
 			impulse?.GenerateImpulse(this.MyRigidbody.velocity);
 			AudioManager.Instance.PlaySound(HitSFX, this.transform.position);
-            Destroy(this.gameObject);
+
+			if (!IsPlayer)
+				Destroy(this.gameObject);
 		}
 
 		_killMode = false;
@@ -117,5 +130,8 @@ public class Projectile : Grabbable
 			r2d.velocity = Vector3.zero;
 			r2d.Sleep();
 		}
+
+		if (IsPlayer)
+			ReleaseAndSetKinematic();
 	}
 }

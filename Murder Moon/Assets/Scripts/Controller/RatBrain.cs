@@ -38,7 +38,7 @@ public class RatBrain : MonoBehaviour
     private Grabbable _grabbable;
     private Rigidbody2D _myRigidbody;
 
-    private bool IsYote = false;
+    public bool IsYote { get; private set; }
 
     void FixNaN()
     {
@@ -97,7 +97,7 @@ public class RatBrain : MonoBehaviour
         else if (this.IsYote)
         {
             Rewired.Player p = Rewired.ReInput.players.GetPlayer(this._ratPlayer.PlayerID);
-            if (p.GetButtonDown("Jump") || p.GetButtonDown("Interact"))
+            if (p.GetButtonDown("Jump") || p.GetButtonDown("Interact") || this._myRigidbody.isKinematic)
             {
                 LeaveYote();
             }
@@ -304,13 +304,15 @@ public class RatBrain : MonoBehaviour
     void LeaveYote()
     {
         if (IsYote)
-        {
-            this._animator.Play("Idle");
+		{
+			Projectile p = GetComponent<Projectile>();
+			p?.ResetKillmode();
+			p?.ReleaseAndSetKinematic();
+			this._animator.Play("Idle");
             this._yeeter.enabled = true;
             this._velocity = this._myRigidbody.velocity;
             this.IsYote = false;
-            GetComponent<Projectile>()?.ResetKillmode();
-        }
+		}
     }
 
     protected void OnRelease()
