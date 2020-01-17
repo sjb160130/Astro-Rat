@@ -19,6 +19,9 @@ public class LevelGenerator : MonoBehaviour
 
 	static public LevelGenerator Instance { get; private set; }
 
+	[HideInInspector, SerializeField]
+	float _smallestPlanetRadius, _largestPlanetRadius;
+
 	public class ScreenData : IComparable
 	{
 		public Bounds Bounds;
@@ -36,15 +39,14 @@ public class LevelGenerator : MonoBehaviour
 		}
 	}
 
-	public class SpawnedPlanet
-	{
-
-	}
-
 	private void OnValidate()
 	{
 		if (PlanetsAndConf == null)
 			return;
+
+		_smallestPlanetRadius = float.MaxValue;
+		_largestPlanetRadius = float.MinValue;
+
 		foreach (PlanetAndData planetData in PlanetsAndConf)
 		{
 			if (planetData == null || planetData.Prefab == null)
@@ -52,7 +54,11 @@ public class LevelGenerator : MonoBehaviour
 			var renderer = planetData.Prefab.GetComponentInChildren<Renderer>(); ;
 			var bounds = renderer.bounds;
 			planetData.Radius = Mathf.Max(bounds.extents.x, bounds.extents.y);
+			_smallestPlanetRadius = Mathf.Min(_smallestPlanetRadius, planetData.Radius);
+			_largestPlanetRadius = Mathf.Max(_largestPlanetRadius, planetData.Radius);
 		}
+
+		Array.Sort(PlanetsAndConf, (x, y) => { return x.Radius.CompareTo(y.Radius); });
 	}
 
 	private void Awake()
@@ -80,11 +86,12 @@ public class LevelGenerator : MonoBehaviour
 		}
 
 		var screenJunctions = new HashSet<Tuple<ScreenData, ScreenData>>(new TupleComparer());
-		Dictionary<ScreenData, List<SpawnedPlanet>> spawnedPlanets = new Dictionary<ScreenData, List<SpawnedPlanet>>();
+		Dictionary<ScreenData, List<GameObject>> spawnedPlanets = new Dictionary<ScreenData, List<GameObject>>();
 
+		//generate data for screen juntions, creating a map where you can traverse the screens
 		for (int i = 0; i < screenBounds.Length; i++)
 		{
-			spawnedPlanets.Add(screenBounds[i], new List<SpawnedPlanet>());
+			spawnedPlanets.Add(screenBounds[i], new List<GameObject>());
 
 			ScreenData closestScreen = null;
 			float closestScreenDistance = float.MaxValue;
@@ -104,12 +111,82 @@ public class LevelGenerator : MonoBehaviour
 			screenJunctions.Add(new Tuple<ScreenData, ScreenData>(screenBounds[i], closestScreen));
 		}
 
+		//spawn planets at the junctions
 		foreach (var junction in screenJunctions)
 		{
 			Bounds intersection = GetIntersection(junction.Item1.Bounds, junction.Item2.Bounds);
-			GameObject intersectionGO = new GameObject("Intersection");
-			intersectionGO.transform.position = intersection.center;
+			PlanetAndData planet = PlanetsAndConf.GetRandom();
+			spawnedPlanets[junction.Item1].Add(SpawnPlanet(intersection.center, PlanetsAndConf.GetRandom(), junction.Item1));
+			spawnedPlanets[junction.Item2].Add(SpawnPlanet(intersection.center, PlanetsAndConf.GetRandom(), junction.Item2));
 		}
+
+		//sort spawned planets by axis we'd like to traverse
+		foreach (var pair in spawnedPlanets)
+		{
+			if (pair.Key.Bounds.size.y > pair.Key.Bounds.size.x) // sort by height
+			{
+				pair.Value.Sort(comparison: (planetA, planetB) => { return planetA.transform.position.y.CompareTo(planetB.transform.position.y); });
+			}
+			else //sort by width
+			{
+				pair.Value.Sort(comparison: (planetA, planetB) => { return planetA.transform.position.x.CompareTo(planetB.transform.position.x); });
+			}
+		}
+	}
+
+	Collider2D[] _planetCheckColliders = new Collider2D[8];
+	public ContactFilter2D PlanetCheckFilter;
+
+	GameObject SpawnPlanet(Vector3 startPoint, PlanetAndData planet, ScreenData data)
+	{
+		Vector3 point = GetPointInBounds(startPoint, data.Bounds, planet.Radius + MandatoryPlanetPadding + EdgePadding);
+		point.z = 0f;
+		GameObject planetSpawnedGO = PoolManager.SpawnObject(planet.Prefab, point, Quaternion.identity);
+		Depenetrate(planetSpawnedGO, data.Bounds);
+		return planetSpawnedGO;
+	}
+
+	void Depenetrate(GameObject planet, Bounds bounds, int iterations = 2)
+	{
+		Collider2D collider = planet.GetComponent<Collider2D>();
+
+		for (int i = 0; i < iterations; i++)
+		{
+			int hitCount = Physics2D.OverlapCollider(collider, PlanetCheckFilter, _planetCheckColliders);
+			if (hitCount > 1) //did we hit more than just ourselves?
+			{
+				for (int j = 0; j < hitCount; j++)
+				{
+					Collider2D hit = _planetCheckColliders[j];
+					// Ignore our own collider.
+					if (hit == collider)
+						continue;
+
+
+					ColliderDistance2D colliderDistance = hit.Distance(collider);
+
+					// Ensure that we are still overlapping this collider.
+					// The overlap may no longer exist due to another intersected collider
+					// pushing us out of this one.
+					if (colliderDistance.isOverlapped)
+					{
+						Vector3 offset = colliderDistance.pointA - colliderDistance.pointB;
+						transform.Translate(offset + (offset.normalized * this.MandatoryPlanetPadding * 2f), Space.World);
+						transform.position = GetPointInBounds(transform.position, bounds, MandatoryPlanetPadding + EdgePadding);
+					}
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	Vector3 GetPointInBounds(Vector3 target, Bounds b, float padding)
+	{
+		Bounds shrunkBounds = new Bounds(b.center, b.size - new Vector3(padding * 2f, padding * 2f, 0));
+		return shrunkBounds.ClosestPoint(target);
 	}
 
 	Bounds GetIntersection(Bounds boundsA, Bounds boundsB)

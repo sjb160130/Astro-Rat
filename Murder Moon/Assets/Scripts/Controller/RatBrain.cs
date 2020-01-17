@@ -81,6 +81,9 @@ public class RatBrain : MonoBehaviour
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
 	{
+		if (GameState.Instance.IsPlaying == false)
+			return;
+
 		if (this._grabbable.IsHeld)
 		{
 			//try escaping?

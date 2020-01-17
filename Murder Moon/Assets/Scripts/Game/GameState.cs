@@ -67,7 +67,7 @@ public class GameState : StateMachine<GameState.State>
 				{
 					//timer for a short delay before setting state
 					StartDelay -= Time.deltaTime;
-					Debug.Log(StartDelay.ToString("0.0"));
+					//Debug.Log(StartDelay.ToString("0.0"));
 					if (StartDelay <= 0f)
 						this.SetState(State.InGame);
 				}

@@ -61,6 +61,9 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	private void Update()
 	{
+		if (GameState.Instance.IsPlaying == false)
+			return;
+
 		var p = _player;
 
 		UpdateLineRenderer();
