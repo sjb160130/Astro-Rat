@@ -53,10 +53,10 @@ public class SpawnManager : MonoBehaviour
 			while (SpawningActive == false)
 				yield return null;
 			yield return new WaitForSeconds(waitTime);
-			if (GameObject.FindGameObjectsWithTag("Item").Length >= PlayerManager.Instance.PlayerCount)
+			if (GameObject.FindGameObjectsWithTag("Item").Length >= (PlayerManager.Instance.PlayerCount + 3))
 				continue;
-			var star2 = SpawnStar();
-			StartCoroutine(Release(star2));
+			var star = SpawnStar();
+			StartCoroutine(Release(star));
 		}
 
 		hasStartedSpawningStars = false;

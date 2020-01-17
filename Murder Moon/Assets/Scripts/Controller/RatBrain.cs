@@ -191,6 +191,8 @@ public class RatBrain : MonoBehaviour
         {
             // apply down gravity
             gravity = gravityAfterPeak;
+            if (!_controller.IsGrounded && this._yeeter.CurrentState != Yeeter.State.Yeeting && this._yeeter.CurrentState != Yeeter.State.Charging)
+                _animator.Play(Animator.StringToHash("Falling"));
         }
         else if (_isHoldingJump)
         {
@@ -225,14 +227,9 @@ public class RatBrain : MonoBehaviour
 
 
     Dictionary<string, Sprite> spriteSheet;
-
-
     // Runs after the animation has done its work
     private void LateUpdate()
     {
-        // Swap out the sprite to be rendered by its name
-        // Important: The name of the sprite must be the same!
-
         try
         {
             Sprite.sprite = spriteSheet[Sprite.sprite.name];
@@ -241,16 +238,12 @@ public class RatBrain : MonoBehaviour
         {
             Debug.LogError("ERROR - Missing frame - " + Sprite.sprite.name);
         }
-  
     }
 
   
 
     private void SetUpSpriteSheet()
     {
-        Debug.Log("NAME 1 - " + Sprite.sprite.name);
-
-
         if (SpriteSheetName.Count() != 0 && SpriteSheetName != null)
         {
             ///Sprite.sprite = SpriteSheetName;
@@ -260,12 +253,7 @@ public class RatBrain : MonoBehaviour
             {
                 spriteSheet = sprites.ToDictionary(x => x.name, x => x);
                 Sprite.sprite = spriteSheet[Sprite.sprite.name];
-                Debug.Log("LENGTH - " + spriteSheet.Count);
-                Debug.Log("NAME 2 - " + Sprite.sprite.name);
             }
-
-
-            
         }
     }
 
