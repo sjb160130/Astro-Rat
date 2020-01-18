@@ -20,6 +20,7 @@ public class DisplayPlayerTapIn : MonoBehaviour
 
 	public AudioClip TapInSFX;
 	public AudioClip TapOutSFX;
+	public AudioClip[] ReadySFX;
 
 	float _speed01 = 1f;
 
@@ -60,7 +61,7 @@ public class DisplayPlayerTapIn : MonoBehaviour
 			this.Animator?.Play("Ready");
 
 			if (_isReady == false)
-				AudioManager.Instance.PlaySound(this.TapInSFX, this.transform.position, AudioManager.MixerGroup.Title);
+				AudioManager.Instance.PlaySound(this.ReadySFX.GetRandom(), this.transform.position, AudioManager.MixerGroup.Announcer);
 		}
 		else
 		{

@@ -35,8 +35,11 @@ public class GameState : StateMachine<GameState.State>
 
 	[Header("Sequence Directors")]
 	public PlayableDirector GameStartDirector;
+	public AudioClip[] GoSFX;
 	public PlayableDirector SuddenDeathDirector;
+	public AudioClip[] SuddenDeathSFX;
 	public PlayableDirector WinnerDirector;
+	public AudioClip[] WinnerSFX;
 
 	const float ShipDelay = 2f;
 
@@ -87,7 +90,11 @@ public class GameState : StateMachine<GameState.State>
 						SetState(State.VictoryScreen);
 					}
 					else
+					{
+						if (SuddenDeathDirector.gameObject.activeSelf == false)
+							AudioManager.Instance.PlaySound(this.SuddenDeathSFX.GetRandom(), this.transform.position, AudioManager.MixerGroup.Announcer, 1f);
 						SuddenDeathDirector.gameObject.SetActive(true);
+					}
 				}
 				break;
 			case State.VictoryScreen:
@@ -102,6 +109,7 @@ public class GameState : StateMachine<GameState.State>
 		AudioManager.Instance.PlaySong(AudioManager.Song.Nothing);
 		yield return new WaitForSeconds(RatShipRespawner.AnimationLength + ShipDelay);
 		this.GameStartDirector.gameObject.SetActive(true);
+		AudioManager.Instance.PlaySound(this.GoSFX.GetRandom(), this.transform.position, AudioManager.MixerGroup.Announcer, 1f);
 		AudioManager.Instance.PlaySong(AudioManager.Song.Battle);
 		StartTimerAndStarSpawning();
 		yield return new WaitForSeconds(2f);
@@ -178,6 +186,7 @@ public class GameState : StateMachine<GameState.State>
 				StartCoroutine(VictoryScreenDelay());
 				WinnerDirector.gameObject.SetActive(true);
 				AudioManager.Instance.PlaySong(AudioManager.Song.Nothing);
+				AudioManager.Instance.PlaySound(WinnerSFX.GetRandom(), this.transform.position, AudioManager.MixerGroup.Announcer, 1f);
 				break;
 			default:
 				break;

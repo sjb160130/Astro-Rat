@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
 	public AudioMixerGroup MixerGroupSFX;
 	public AudioMixerGroup MixerGroupMusic;
 	public AudioMixerGroup MixerGroupTitleSFX;
+	public AudioMixerGroup MixerGroupAnnouncer;
 
 	GameObject _prefab;
 
@@ -64,7 +65,7 @@ public class AudioManager : MonoBehaviour
 	}
 
 	public enum Song { Nothing, Main, Battle }
-	public enum MixerGroup { SFX, Music, Title }
+	public enum MixerGroup { SFX, Music, Title, Announcer }
 
 	public void PlaySong(Song song)
 	{
@@ -112,6 +113,9 @@ public class AudioManager : MonoBehaviour
 				break;
 			case MixerGroup.Title:
 				source.outputAudioMixerGroup = MixerGroupTitleSFX;
+				break;
+			case MixerGroup.Announcer:
+				source.outputAudioMixerGroup = MixerGroupAnnouncer;
 				break;
 			default:
 				break;
