@@ -11,6 +11,13 @@ public class SpaceShip : MonoBehaviour
     private void Start()
     {
         Sprite = GetComponent<SpriteRenderer>();
+
+
+        if(Sprite == null)
+        {
+            Sprite = GetComponentInChildren<SpriteRenderer>();
+        }
+
         SetUpSpriteSheet();
     }
 
