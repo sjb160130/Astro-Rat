@@ -7,10 +7,10 @@ TextureImporter:
     second: 0
   - first:
       213: -8299997926695364340
-    second: 2
+    second: 1
   - first:
       213: 6742796557653373290
-    second: RatBlue_2
+    second: 2
   - first:
       213: 115708382517513871
     second: 3
@@ -167,7 +167,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 2
+      name: 1
       rect:
         serializedVersion: 2
         x: 2048
@@ -188,7 +188,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RatBlue_2
+      name: 2
       rect:
         serializedVersion: 2
         x: 0
@@ -233,7 +233,7 @@ TextureImporter:
       name: 4
       rect:
         serializedVersion: 2
-        x: 0
+        x: 14
         y: 3532
         width: 2048
         height: 883
@@ -296,7 +296,7 @@ TextureImporter:
       name: 7
       rect:
         serializedVersion: 2
-        x: 2048
+        x: 2041
         y: 2649
         width: 2048
         height: 883
@@ -318,7 +318,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 1766
+        y: 1773
         width: 2048
         height: 883
       alignment: 0
@@ -338,7 +338,7 @@ TextureImporter:
       name: 9
       rect:
         serializedVersion: 2
-        x: 2048
+        x: 2041
         y: 1766
         width: 2048
         height: 883
@@ -359,7 +359,7 @@ TextureImporter:
       name: 10
       rect:
         serializedVersion: 2
-        x: 0
+        x: 14
         y: 883
         width: 2048
         height: 883

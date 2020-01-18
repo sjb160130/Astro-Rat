@@ -29,6 +29,10 @@ public class RatController : MonoBehaviour
 		calc = GetComponent<RatCalculator>();
 	}
 
+	public void ResetVelocity() {
+		this.Velocity = Vector3.zero;
+	}
+
 	public void Move(Vector3 localMoveDelta)
 	{
 		IsGrounded = false;

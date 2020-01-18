@@ -71,9 +71,9 @@ public class Projectile : Grabbable
 		_killMode = false;
 	}
 
-	protected override void OnRelease()
+	protected override void OnRelease(bool kill)
 	{
-		_killMode = true;
+		_killMode = kill;
 
 		UpdateDrag();
 

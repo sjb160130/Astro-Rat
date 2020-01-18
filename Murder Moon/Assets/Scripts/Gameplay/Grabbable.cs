@@ -5,7 +5,7 @@ using UnityEngine;
 public class Grabbable : MonoBehaviour
 {
 	public bool IsHeld { get; private set; }
-	protected Yeeter LastYeeter { get; private set; }
+	public Yeeter LastYeeter { get; private set; }
 	Vector3 _originalScale;
 	bool _kinematic;
 
@@ -44,7 +44,7 @@ public class Grabbable : MonoBehaviour
 		Debug.Log(this.gameObject.name + " grabbed by " + yeeter.gameObject.name);
 	}
 
-	public void Release()
+	public void Release(bool kill = true)
 	{
 		Quaternion prevRot = this.transform.rotation;
 		Vector3 prevPos = this.transform.position;
@@ -66,13 +66,13 @@ public class Grabbable : MonoBehaviour
 
 		StartCoroutine(MakeInvulnerable());
 
-		OnRelease();
+		OnRelease(kill);
 		OnReleaseCallback?.Invoke();
 	}
 
 	public void ReleaseAndSetKinematic()
 	{
-		Release();
+		Release(false);
 
 		IsHeld = false;
 
@@ -101,6 +101,6 @@ public class Grabbable : MonoBehaviour
 		}
 	}
 
-	virtual protected void OnRelease() { }
+	virtual protected void OnRelease(bool kill) { }
 	virtual protected void OnGrab() { }
 }

@@ -67,7 +67,8 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 		UpdateLineRenderer();
 
-		if (_ratPlayer.Dead) {
+		if (_ratPlayer.Dead)
+		{
 			if (this._heldItem != null)
 				Drop();
 			return;
@@ -135,14 +136,18 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	public void Drop()
 	{
-		if (_heldItem == null)
+		if (this._heldItem == null)
 			return;
 
-		this._heldItem.Release();
+		if (this._heldItem.IsPlayer)
+			this._heldItem.ReleaseAndSetKinematic();
+		else
+			this._heldItem.Release(false);
+
 		//Debug.Log(_windup01);
 		this._heldItem.MyRigidbody.transform.position = this.ItemMountPoint.transform.position;
 		this._heldItem.MyRigidbody.velocity = Vector2.zero;
-		this._heldItem.MyRigidbody.AddTorque(Random.Range(-5f, 5f), ForceMode2D.Impulse);
+		this._heldItem.MyRigidbody.angularVelocity = 0f;
 		this._heldItem = null;
 		this.SetState(State.Empty);
 	}

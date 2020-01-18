@@ -91,20 +91,36 @@ public class RatBrain : MonoBehaviour
     void Update()
     {
         if (this._grabbable.IsHeld)
-        {
-            //try escaping?
-        }
+		{
+			this._myRigidbody.isKinematic = true;
+			Rewired.Player p = Rewired.ReInput.players.GetPlayer(this._ratPlayer.PlayerID);
+			if (p.GetButtonDoublePressDown("Jump") || p.GetButtonDoublePressDown("Interact"))
+			{
+				this.GetComponent<Projectile>()?.LastYeeter?.Drop();
+				this._velocity = Vector3.zero;
+				this._myRigidbody.velocity = Vector3.zero;
+				this._myRigidbody.angularVelocity = 0f;
+				//depen with no fling after the fact.
+				this._controller.Move(Vector3.zero);
+				this._controller.ResetVelocity();
+			}
+			_animator.Play(Animator.StringToHash("Yote"));
+		}
         else if (this.IsYote)
         {
             Rewired.Player p = Rewired.ReInput.players.GetPlayer(this._ratPlayer.PlayerID);
             if (p.GetButtonDown("Jump") || p.GetButtonDown("Interact") || this._myRigidbody.isKinematic)
             {
                 LeaveYote();
-            }
-        }
+			}
+			_animator.Play(Animator.StringToHash("Yote"));
+		}
         else
-        {
-            DoMove();
+		{
+			//we shouldn't need to set these values, but this is a quickfix for some weird edgecase I can't repro.
+			this._myRigidbody.isKinematic = true;
+			this._myRigidbody.simulated = true;
+			DoMove();
         }
     }
 
