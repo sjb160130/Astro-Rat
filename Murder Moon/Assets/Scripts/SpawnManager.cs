@@ -21,7 +21,7 @@ public class SpawnManager : MonoBehaviour
 	private PoolManager _pool { get { return PoolManager.Instance; } }
 
 	public List<GameObject> items;
-	public List<SpawnPoint> spawnPoints;
+	public GameObject[] spawnPoints;
 
 	private bool hasStartedSpawningStars = false;
 
@@ -32,6 +32,7 @@ public class SpawnManager : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+		spawnPoints = GameObject.FindGameObjectsWithTag("Spawn Point");
 	}
 
 	private void Update()
@@ -95,9 +96,15 @@ public class SpawnManager : MonoBehaviour
 
 	private SpawnPoint getRandomStarSpawnLocation()
 	{
-		var index = Random.Range(0, spawnPoints.Count);
-		index = index < 0 ? 0 : index;
-		return spawnPoints[index];
+		GameObject go = this.spawnPoints.GetRandom();
+		return getSpawnPoint(go.transform.position);
+	}
+
+	SpawnPoint getSpawnPoint(Vector3 point)
+	{
+		GameObject planet = GameObject.FindGameObjectsWithTag("Planet").GetRandom();
+		Vector2 direction = (planet.transform.position - point).normalized;
+		return new SpawnPoint() { SpawnHere = point, DirectionToShoot = direction };
 	}
 
 
@@ -118,14 +125,12 @@ public class SpawnManager : MonoBehaviour
 	int lastPlayerSpawnIndex = 1;
 	public SpawnPoint getRandomPlayerSpawnLocation()
 	{
-		int spawnPlayerHereIndex = lastPlayerSpawnIndex;
-
-		while (spawnPlayerHereIndex == lastPlayerSpawnIndex)
+		lastPlayerSpawnIndex++;
+		if (lastPlayerSpawnIndex >= this.spawnPoints.Length)
 		{
-			spawnPlayerHereIndex = Random.Range(0, spawnPoints.Count);
+			lastPlayerSpawnIndex = 0;
 		}
-
-		return spawnPoints[spawnPlayerHereIndex];
+		return getSpawnPoint(this.spawnPoints[lastPlayerSpawnIndex].transform.position);
 	}
 
 }
