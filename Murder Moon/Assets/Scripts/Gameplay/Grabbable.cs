@@ -19,11 +19,28 @@ public class Grabbable : MonoBehaviour
 
 	public bool IsPlayer = false;
 
+	protected bool _killMode = false;
+
 	protected virtual void Awake()
 	{
 		_originalScale = this.transform.localScale;
 		_kinematic = this.MyRigidbody.isKinematic;
 		MyCollider = MyCollider ?? GetComponent<Collider2D>();
+	}
+
+	protected void UpdateLayer()
+	{
+		if (this.IsPlayer == false)
+		{
+			if (this._killMode)
+			{
+				this.gameObject.layer = LayerMask.NameToLayer("Item Thrown");
+			}
+			else
+			{
+				this.gameObject.layer = LayerMask.NameToLayer("Item");
+			}
+		}
 	}
 
 	public void Grab(Yeeter yeeter)
@@ -42,6 +59,8 @@ public class Grabbable : MonoBehaviour
 		OnGrabCallback?.Invoke();
 
 		Debug.Log(this.gameObject.name + " grabbed by " + yeeter.gameObject.name);
+
+		UpdateLayer();
 	}
 
 	public void Release(bool kill = true)
@@ -68,6 +87,8 @@ public class Grabbable : MonoBehaviour
 
 		OnRelease(kill);
 		OnReleaseCallback?.Invoke();
+
+		UpdateLayer();
 	}
 
 	public void ReleaseAndSetKinematic()
@@ -81,6 +102,8 @@ public class Grabbable : MonoBehaviour
 		MyRigidbody.simulated = true;
 		MyRigidbody.velocity = Vector2.zero;
 		MyRigidbody.angularVelocity = 0f;
+
+		UpdateLayer();
 	}
 
 	IEnumerator MakeInvulnerable()

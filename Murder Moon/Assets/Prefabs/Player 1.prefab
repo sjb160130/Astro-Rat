@@ -360,7 +360,7 @@ MonoBehaviour:
   GrabRadius: 0.6
   GrabbableItemMask:
     serializedVersion: 2
-    m_Bits: 2304
+    m_Bits: 35072
   YeetStrength: 8
   LineRenderer: {fileID: 828419425}
   LineRendererLength: 3

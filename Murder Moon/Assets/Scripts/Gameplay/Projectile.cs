@@ -9,8 +9,6 @@ public class Projectile : Grabbable
 
 	public bool SpinOnThrow;
 
-	bool _killMode = false;
-
 	Planet _lastPlanet;
 	Vector3 _lastGravity;
 
@@ -30,6 +28,8 @@ public class Projectile : Grabbable
 
 	private void FixedUpdate()
 	{
+		UpdateLayer();
+
 		UpdateDrag();
 		var r2d = this.GetComponent<Rigidbody2D>();
 		if (r2d.isKinematic)

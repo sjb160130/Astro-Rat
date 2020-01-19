@@ -221,10 +221,14 @@ public class Yeeter : StateMachine<Yeeter.State>
 
 	Vector3 GetYeetDirection()
 	{
+		const float tMax = 0.75f;
+		float t = Mathf.SmoothStep(0f, 1f, _windup01);
+		t = Mathf.Lerp(t, _windup01, 0.5f);
+		t *= tMax;
 		Vector2 direction = Vector2.Lerp(
 			this.CurrentDirection == Direction.Right ? this.transform.right : this.transform.right * -1f,
 			this.transform.up,
-			_windup01 * 0.9f);
+			t);
 		return direction.normalized;
 	}
 
