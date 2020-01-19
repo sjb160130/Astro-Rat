@@ -27,23 +27,23 @@ public class RatPlayer : MonoBehaviour
 		int highestScore = int.MinValue;
 		bool tie = false;
 
-        foreach (RatPlayer player in _players)
-        {
-            player.GetComponent<RatBrain>().SetCrownWinner(false);
-        }
-
-        foreach (RatPlayer player in _players)
+		foreach (RatPlayer player in _players)
 		{
-            if (PlayerManager.Instance.IsPlaying(player.PlayerID) == false)
-            {
-                continue;
-            }
+			player.GetComponent<RatBrain>().SetCrownWinner(false);
+		}
+
+		foreach (RatPlayer player in _players)
+		{
+			if (PlayerManager.Instance.IsPlaying(player.PlayerID) == false)
+			{
+				continue;
+			}
 			if (player.Score > highestScore)
 			{
 				tie = false;
 				winner = player;
 				highestScore = player.Score;
-                player.GetComponent<RatBrain>().SetCrownWinner(true);
+				player.GetComponent<RatBrain>().SetCrownWinner(true);
 			}
 			else if (player.Score == highestScore)
 				tie = true;
@@ -57,6 +57,7 @@ public class RatPlayer : MonoBehaviour
 	{
 		foreach (RatPlayer rp in _players)
 		{
+			rp.GetComponent<Yeeter>()?.Drop();
 			rp.gameObject.SetActive(false);
 			if (PlayerManager.Instance.IsPlaying(rp.PlayerID))
 			{
@@ -95,7 +96,8 @@ public class RatPlayer : MonoBehaviour
 
 		Debug.Log("Player " + this.PlayerID + " killed");
 
-		StartCoroutine(HandleDeathAndRespawn());
+		if (GameState.Instance.IsPlaying)
+			StartCoroutine(HandleDeathAndRespawn());
 		this.gameObject.layer = LayerMask.NameToLayer("Player Dead");
 
 		AudioManager.Instance.PlaySound(this.Sounds.Die, this.transform.position, volume: 1f);
@@ -151,6 +153,7 @@ public class RatPlayer : MonoBehaviour
 	{
 		foreach (var p in _players)
 		{
+			p.GetComponent<Yeeter>()?.Drop();
 			p.ResetPlayer();
 		}
 	}

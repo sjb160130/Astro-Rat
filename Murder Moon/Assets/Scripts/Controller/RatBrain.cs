@@ -40,6 +40,8 @@ public class RatBrain : MonoBehaviour
 
     public bool IsYote { get; private set; }
 
+	public Transform[] FlipScaleWhenLeft;
+
     void FixNaN()
     {
         if (float.IsNaN(this._velocity.x))
@@ -79,12 +81,16 @@ public class RatBrain : MonoBehaviour
         {
             Sprite.flipX = false;
             FacingRight = true;
+			foreach (var t in FlipScaleWhenLeft)
+				t.localScale = new Vector3(1f, 1f, 1f);
         }
         else if (direction < -0.1f)
         {
             Sprite.flipX = true;
             FacingRight = false;
-        }
+			foreach (var t in FlipScaleWhenLeft)
+				t.localScale = new Vector3(-1f, 1f, 1f);
+		}
     }
 
     // the Update loop contains a very simple example of moving the character around and controlling the animation
