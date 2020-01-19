@@ -40,6 +40,7 @@ public class GameState : StateMachine<GameState.State>
 	public AudioClip[] SuddenDeathSFX;
 	public PlayableDirector WinnerDirector;
 	public AudioClip[] WinnerSFX;
+	public AudioClip[] WelcomeSFX;
 
 	const float ShipDelay = 2f;
 
@@ -180,6 +181,7 @@ public class GameState : StateMachine<GameState.State>
 				}
 				StartCoroutine(StartDirectorRoutine());
 				SpawnManager.Instance.SpawningActive = false;
+				AudioManager.Instance.PlaySound(WelcomeSFX.GetRandom(), this.transform.position, AudioManager.MixerGroup.Announcer, 1f);
 				break;
 			case State.VictoryScreen:
 				AudioManager.Instance.Mixer.FindSnapshot("Title").TransitionTo(0.2f);

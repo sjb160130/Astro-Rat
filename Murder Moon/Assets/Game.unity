@@ -4704,7 +4704,20 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e98a1de2180032843a951859a2513d1b, type: 3}
   - {fileID: 8300000, guid: fd5ed3af0f17c384eace867260ab4ae2, type: 3}
   WinnerDirector: {fileID: 625426918}
-  WinnerSFX: []
+  WinnerSFX:
+  - {fileID: 8300000, guid: c688014ae1cca0e4fa634125d37618ec, type: 3}
+  - {fileID: 8300000, guid: 153b9efcb0ebf5a4f9bbd05f4659cba4, type: 3}
+  - {fileID: 8300000, guid: 2ba13e6d1bf7f4e4287738e13edccdfd, type: 3}
+  - {fileID: 8300000, guid: 965f094f95c75c9449047c896df0f66e, type: 3}
+  - {fileID: 8300000, guid: 101577effa1f6894caeb192ac68ea002, type: 3}
+  - {fileID: 8300000, guid: 67ee18d1a0a447f448714d683e1f4cf1, type: 3}
+  WelcomeSFX:
+  - {fileID: 8300000, guid: f0a7dee3093aab04584951cf0e2c76dd, type: 3}
+  - {fileID: 8300000, guid: be2df06a5f31a72428d4f644e3e6f25c, type: 3}
+  - {fileID: 8300000, guid: add72e4ceb26ab044b5e66fc622b7791, type: 3}
+  - {fileID: 8300000, guid: 1eafa4a82a131b24da3b501afb6f6c5f, type: 3}
+  - {fileID: 8300000, guid: 23bb2f9419c79fd4dba383e37b4d4f4a, type: 3}
+  - {fileID: 8300000, guid: 38575bf85ca3d6d4897512e787effa12, type: 3}
 --- !u!4 &1331135259
 Transform:
   m_ObjectHideFlags: 0

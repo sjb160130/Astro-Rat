@@ -105,7 +105,7 @@ public class RatPlayer : MonoBehaviour
 	{
 		Dead = false;
 		this.gameObject.layer = LayerMask.NameToLayer("Player");
-		this.gameObject.SetActive(true);
+		//this.gameObject.SetActive(true);
 	}
 
 	IEnumerator HandleDeathAndRespawn()
