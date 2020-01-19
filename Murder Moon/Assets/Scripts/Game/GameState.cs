@@ -17,7 +17,7 @@ public class GameState : StateMachine<GameState.State>
 	//singleton
 	public static GameState Instance { get; private set; }
 
-	const float StartDelayDuration = 1f;
+	const float StartDelayDuration = 3.1f;
 	static float StartDelay = StartDelayDuration;
 
 	public GameView StartView, GameplayView, WinnerView;
@@ -41,6 +41,7 @@ public class GameState : StateMachine<GameState.State>
 	public PlayableDirector WinnerDirector;
 	public AudioClip[] WinnerSFX;
 	public AudioClip[] WelcomeSFX;
+	public PlayableDirector Countdown;
 
 	const float ShipDelay = 2f;
 
@@ -72,11 +73,13 @@ public class GameState : StateMachine<GameState.State>
 					Debug.Log(StartDelay.ToString("0.0"));
 					if (StartDelay <= 0f)
 						this.SetState(State.InGame);
+					this.Countdown.gameObject?.SetActive(true);
 				}
 				else
 				{
 					//if not readied, reset timer
 					StartDelay = StartDelayDuration;
+					this.Countdown.gameObject?.SetActive(false);
 				}
 				break;
 			case State.InGame:
@@ -136,6 +139,7 @@ public class GameState : StateMachine<GameState.State>
 			case State.GameStart:
 				PlayerManager.Instance.Locked = true;
 				StartDelay = StartDelayDuration;
+				this.Countdown.gameObject?.SetActive(false);
 				break;
 			case State.InGame:
 				foreach (var player in FindObjectsOfType<RatPlayer>())
