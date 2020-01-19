@@ -262,14 +262,18 @@ public class RatBrain : MonoBehaviour
     {
         if (SpriteSheetName.Count() != 0 && SpriteSheetName != null)
         {
-            ///Sprite.sprite = SpriteSheetName;
             var sprites = Resources.LoadAll<Sprite>(this.SpriteSheetName);
 
-            if (sprites != null)
+            try
             {
                 spriteSheet = sprites.ToDictionary(x => x.name, x => x);
                 Sprite.sprite = spriteSheet[Sprite.sprite.name];
             }
+            catch
+            {
+                Debug.LogError(gameObject.name + " - ERROR - Missing frame - " + Sprite.sprite.name);
+            }
+
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -16,6 +17,11 @@ public class SpaceShip : MonoBehaviour
         if(Sprite == null)
         {
             Sprite = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        if(Sprite == null)
+        {
+            Debug.LogError(gameObject.name + " - ERROR - Missing Spriterender");
         }
 
         SetUpSpriteSheet();
@@ -48,9 +54,10 @@ public class SpaceShip : MonoBehaviour
                 spriteSheet = sprites.ToDictionary(x => x.name, x => x);
                 Sprite.sprite = spriteSheet[Sprite.sprite.name];
             }
-            catch
+            catch (Exception e)
             {
-                Debug.LogError(gameObject.name + " - ERROR - Missing frame - " + Sprite.sprite.name);
+                Debug.LogError(e);
+                Debug.LogError(gameObject.name + " - ERROR - Missing frame - ");
             }
 
         }
