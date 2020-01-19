@@ -6,7 +6,7 @@ public class SpaceShip : MonoBehaviour
 {
     public string SpriteSheetName;
     public SpriteRenderer Sprite;
-
+    Dictionary<string, Sprite> spriteSheet;
 
     private void Start()
     {
@@ -22,7 +22,7 @@ public class SpaceShip : MonoBehaviour
     }
 
 
-    Dictionary<string, Sprite> spriteSheet;
+
     // Runs after the animation has done its work
     private void LateUpdate()
     {
@@ -37,19 +37,22 @@ public class SpaceShip : MonoBehaviour
     }
 
 
-
     private void SetUpSpriteSheet()
     {
         if (SpriteSheetName.Count() != 0 && SpriteSheetName != null)
         {
-            ///Sprite.sprite = SpriteSheetName;
             var sprites = Resources.LoadAll<Sprite>(this.SpriteSheetName);
 
-            if (sprites != null)
+            try
             {
                 spriteSheet = sprites.ToDictionary(x => x.name, x => x);
                 Sprite.sprite = spriteSheet[Sprite.sprite.name];
             }
+            catch
+            {
+                Debug.LogError(gameObject.name + " - ERROR - Missing frame - " + Sprite.sprite.name);
+            }
+
         }
     }
 
