@@ -61,6 +61,11 @@ public class GameState : StateMachine<GameState.State>
 
 	private void Update()
 	{
+		if (Rewired.ReInput.players.GetPlayer(0).GetButtonDoublePressDown("Exit"))
+		{
+			Application.Quit();
+		}
+
 		//update logic
 		switch (this._currentState)
 		{

@@ -35,6 +35,6 @@ public class Attractor : MonoBehaviour
 			return;
 		float forceMagnitude = G * (rb.mass * this.MyRigidbody2D.mass) / sqrOffset;
 
-		rb.AddForce(offset.normalized * forceMagnitude * -1f * Time.deltaTime);
+		rb.AddForce(offset.normalized * forceMagnitude * -1f * Time.deltaTime * otherAttractor.Modifier);
 	}
 }

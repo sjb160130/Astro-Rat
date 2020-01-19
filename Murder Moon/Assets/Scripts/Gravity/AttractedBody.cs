@@ -7,6 +7,8 @@ public class AttractedBody : MonoBehaviour
 	public static List<AttractedBody> AttractedBodies = new List<AttractedBody>();
 	public Rigidbody2D MyRigidbody2D;
 
+	public float Modifier = 1f;
+
 	private void OnEnable()
 	{
 		AttractedBodies.Add(this);

@@ -108,6 +108,8 @@ public class RatPlayer : MonoBehaviour
 		this.gameObject.layer = LayerMask.NameToLayer("Player Dead");
 
 		AudioManager.Instance.PlaySound(this.Sounds.Die, this.transform.position, volume: 1f);
+
+		Helmet.Spawn(this.transform.position);
 	}
 
 	public void ResetDeath()

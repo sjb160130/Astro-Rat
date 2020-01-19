@@ -29,13 +29,20 @@ public class RatShipRespawner : MonoBehaviour
 		ship.GetCreateComponent<RatShipRespawner>().Respawn(rp, delay);
 	}
 
-	bool isPlaying = false;
+	static bool isPlaying = false;
+	bool isControllingPlayingFlag = false;
 
 	IEnumerator DontPlaySFXOverEachotherFlag(float duration)
 	{
-		isPlaying = true;
+		isControllingPlayingFlag = isPlaying = true;
 		yield return new WaitForSeconds(duration);
-		isPlaying = false;
+		isControllingPlayingFlag = isPlaying = false;
+	}
+
+	private void OnDisable()
+	{
+		if (isControllingPlayingFlag)
+			isControllingPlayingFlag = isPlaying = false;
 	}
 
 	IEnumerator RespawnRoutine(float delay)

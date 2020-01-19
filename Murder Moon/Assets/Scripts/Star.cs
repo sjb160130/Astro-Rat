@@ -11,6 +11,10 @@ public class Star : MonoBehaviour
 	public GameObject explosion;
 
 	public AudioClip soundWhenHittingSomething;
+	private void OnEnable()
+	{
+		GetComponentInChildren<TrailRenderer>()?.Clear();
+	}
 
 	public void OnCollisionEnter2D(Collision2D collision)
 	{
