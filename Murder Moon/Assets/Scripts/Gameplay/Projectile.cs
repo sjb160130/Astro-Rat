@@ -18,6 +18,7 @@ public class Projectile : Grabbable
 	public bool Kills = true;
 
 	public AudioClip HitSFX;
+	public AudioClip HitGroundSFX;
 
 	void UpdateDrag()
 	{
@@ -58,15 +59,15 @@ public class Projectile : Grabbable
 		_lastGravity = gravity;
 	}
 
-    private void LateUpdate()
-    {
-        if(!IsPlayer && Vector2.Distance(this.gameObject.transform.position, new Vector2(0,0)) > 30)
-        {
-            PoolManager.Instance.releaseObject(this.gameObject);
-        }
-    }
+	private void LateUpdate()
+	{
+		if (!IsPlayer && Vector2.Distance(this.gameObject.transform.position, new Vector2(0, 0)) > 30)
+		{
+			PoolManager.Instance.releaseObject(this.gameObject);
+		}
+	}
 
-    protected void RevolvePlanet(Planet p, Vector3 gravity)
+	protected void RevolvePlanet(Planet p, Vector3 gravity)
 	{
 
 	}
@@ -88,6 +89,8 @@ public class Projectile : Grabbable
 
 		if (SpinOnThrow)
 			this.Animator?.Play("ItemSpin");
+		else
+			this.Animator?.Play("ItemIdle");
 	}
 
 	Vector2 GetPerpendicularGravity(Vector2 velocity, Vector2 gravity)
@@ -124,13 +127,25 @@ public class Projectile : Grabbable
 			impulse?.GenerateImpulse(this.MyRigidbody.velocity);
 			AudioManager.Instance.PlaySound(HitSFX, this.transform.position);
 
-            if (!IsPlayer)
-                PoolManager.Instance.releaseObject(this.gameObject);
+			if (!IsPlayer)
+				PoolManager.Instance.releaseObject(this.gameObject);
+
+			Cloud.Spawn(collision.contacts[0].point, Cloud.Size.Large);
+			_killMode = false;
+		}
+		else
+		{
+			if (_killMode) {
+				AudioManager.Instance.PlaySound(HitGroundSFX, collision.contacts[0].point, AudioManager.MixerGroup.SFX, 0.8f);
+				Cloud.Spawn(collision.contacts[0].point, Cloud.Size.Small);
+			}
+			_killMode = false;
 		}
 
-		_killMode = false;
 
 		if (SpinOnThrow)
+			this.Animator?.Play("ItemSpin");
+		else
 			this.Animator?.Play("ItemIdle");
 
 		if (collision.collider.CompareTag("Planet"))

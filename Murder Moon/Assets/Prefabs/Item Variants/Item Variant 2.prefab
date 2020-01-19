@@ -59,6 +59,11 @@ PrefabInstance:
       propertyPath: MyCollider
       value: 
       objectReference: {fileID: 7334696643320369414}
+    - target: {fileID: 4086918716749258788, guid: 2cedc34fd5374e34e89bc46e455f716e,
+        type: 3}
+      propertyPath: SpinOnThrow
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4086918716749258791, guid: 2cedc34fd5374e34e89bc46e455f716e,
         type: 3}
       propertyPath: m_LocalPosition.x

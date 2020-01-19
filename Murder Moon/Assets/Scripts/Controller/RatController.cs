@@ -24,17 +24,21 @@ public class RatController : MonoBehaviour
 
 	public ContactFilter2D CollisionFilter;
 
+	float _ungroundedTimer;
+
 	private void Awake()
 	{
 		calc = GetComponent<RatCalculator>();
 	}
 
-	public void ResetVelocity() {
+	public void ResetVelocity()
+	{
 		this.Velocity = Vector3.zero;
 	}
 
 	public void Move(Vector3 localMoveDelta)
 	{
+		bool wasGrounded = IsGrounded;
 		IsGrounded = false;
 
 		Vector3 startPoint = this.transform.position;
@@ -51,6 +55,7 @@ public class RatController : MonoBehaviour
 		// Retrieve all colliders we have intersected after velocity has been applied.
 		int hitCount = Physics2D.OverlapCollider(Collider, CollisionFilter, _results);
 
+		Vector3 groundPoint = this.transform.position - (this.transform.up * -1f);
 
 		for (int i = 0; i < hitCount; i++)
 		{
@@ -74,6 +79,7 @@ public class RatController : MonoBehaviour
 				if (Mathf.Abs(Vector2.SignedAngle(colliderDistance.normal, calc.GetUp())) < 90 && localMoveDelta.y < 0)
 				{
 					IsGrounded = true;
+					groundPoint = (colliderDistance.pointA + colliderDistance.pointB) / 2f;
 				}
 			}
 		}
@@ -81,6 +87,15 @@ public class RatController : MonoBehaviour
 		this.Velocity = (this.transform.position - startPoint) / Time.deltaTime;
 
 		DrawRay(this.transform.position, this.Velocity, Color.yellow);
+
+		if (!IsGrounded)
+			_ungroundedTimer += Time.deltaTime;
+		else
+		{
+			if (_ungroundedTimer > 0.2f)
+				Cloud.Spawn(groundPoint, this.transform.rotation, Cloud.Size.VerySmall);
+			_ungroundedTimer = 0f;
+		}
 	}
 
 	public void OnTriggerEnter2D(Collider2D col)
