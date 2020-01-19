@@ -42,13 +42,20 @@ public class RatPlayer : MonoBehaviour
 			{
 				tie = false;
 				winner = player;
-				highestScore = player.Score;
-				player.GetComponent<RatBrain>().SetCrownWinner(true);
+				highestScore = player.Score;        
 			}
 			else if (player.Score == highestScore)
 				tie = true;
 		}
-		if (tie)
+
+        foreach (RatPlayer player in _players)
+        {
+            if (player.Score == highestScore)
+                player.GetComponent<RatBrain>().SetCrownWinner(true);
+        }
+
+
+        if (tie)
 			return null;
 		return winner;
 	}
