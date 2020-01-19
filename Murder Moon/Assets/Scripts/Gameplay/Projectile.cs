@@ -60,7 +60,7 @@ public class Projectile : Grabbable
 
     private void LateUpdate()
     {
-        if(Vector2.Distance(this.gameObject.transform.position, new Vector2(0,0)) > 30)
+        if(!IsPlayer && Vector2.Distance(this.gameObject.transform.position, new Vector2(0,0)) > 30)
         {
             PoolManager.Instance.releaseObject(this.gameObject);
         }
