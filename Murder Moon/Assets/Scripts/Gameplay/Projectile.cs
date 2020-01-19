@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PKG;
 
 public class Projectile : Grabbable
 {
@@ -57,7 +58,15 @@ public class Projectile : Grabbable
 		_lastGravity = gravity;
 	}
 
-	protected void RevolvePlanet(Planet p, Vector3 gravity)
+    private void LateUpdate()
+    {
+        if(Vector2.Distance(this.gameObject.transform.position, new Vector2(0,0)) > 30)
+        {
+            PoolManager.Instance.releaseObject(this.gameObject);
+        }
+    }
+
+    protected void RevolvePlanet(Planet p, Vector3 gravity)
 	{
 
 	}
@@ -115,8 +124,8 @@ public class Projectile : Grabbable
 			impulse?.GenerateImpulse(this.MyRigidbody.velocity);
 			AudioManager.Instance.PlaySound(HitSFX, this.transform.position);
 
-			if (!IsPlayer)
-				Destroy(this.gameObject);
+            if (!IsPlayer)
+                PoolManager.Instance.releaseObject(this.gameObject);
 		}
 
 		_killMode = false;

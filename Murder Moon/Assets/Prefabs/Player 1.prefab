@@ -420,7 +420,7 @@ MonoBehaviour:
   jumpGravity: -11.84
   gravityAfterButtonRelease: -30
   gravityAfterPeak: -20
-  runSpeed: 3
+  runSpeed: 4
   yeetinSpeed: 0.5
   groundDamping: 20
   inAirDamping: 5
