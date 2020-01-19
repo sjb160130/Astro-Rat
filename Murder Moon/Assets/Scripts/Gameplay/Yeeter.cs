@@ -109,6 +109,8 @@ public class Yeeter : StateMachine<Yeeter.State>
 			default:
 				break;
 		}
+
+		UpdateLineRenderer();
 	}
 
 	void TryGrab()
